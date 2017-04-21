@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Irine Rose</string>
+    <string name="drawer_opened">Irine Rose</string>
+    <string name="drawer_closed">Irine Rose</string>
+
+    <string-array name="Options">
+        <item>New Arrival</item>
+        <item>Essentials</item>
+        <item>Gift Card</item>
+        <item>Smart Modules</item>
+    </string-array>
+</resources>

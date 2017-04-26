@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/chic"
+        android:title="Chic"/>
+
+    <item
+        android:id="@+id/active"
+        android:title="Active"/>
+
+    <item
+        android:id="@+id/classic"
+        android:title="Classic"/>
+
+</menu>

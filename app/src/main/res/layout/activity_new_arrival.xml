@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.xts015.myapplication.NewArrivalActivity">
 
-    <include layout="@layout/toolbar"
+    <include layout="@layout/toolbar_nologo"
         android:id="@+id/include" />
 
 
@@ -30,10 +30,9 @@
             android:id="@+id/button_switch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:padding="12dp"
             android:scaleType="fitCenter"
             android:layout_weight="1"
-            android:src="@drawable/test2"
             android:background="@color/white" />
 
         <View
@@ -48,7 +47,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="10dp"
+            android:padding="1dp"
             android:background="@color/white"
             android:text="SORT"
             android:textColor="#080000" />
@@ -63,7 +62,7 @@
         <Button
             android:id="@+id/button_filter"
             android:layout_width="0dp"
-            android:padding="10dp"
+            android:padding="1dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/white"

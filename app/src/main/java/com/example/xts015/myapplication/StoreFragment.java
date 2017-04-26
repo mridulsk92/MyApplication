@@ -45,6 +45,7 @@ public class StoreFragment extends android.support.v4.app.Fragment {
                 switch (position){
                     case 0:
                         Intent i = new Intent(getActivity(),NewArrivalActivity.class);
+                        i.putExtra("Source", "New Arrival");
                         startActivity(i);
                         break;
 

@@ -2,20 +2,26 @@ package com.example.xts015.myapplication;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.squareup.picasso.Picasso;
@@ -34,18 +40,18 @@ import static com.example.xts015.myapplication.HomeActivity.TAG_URL;
 
 public class NewArrivalActivity extends AppCompatActivity {
 
-    GridView productView;
     ImageButton viewSwitch;
     Button sort;
     Button filter;
     ProgressDialog pDialog;
     JSONParser jParser = new JSONParser();
-    String url = "http://shop.irinerose.com/api/shop/all/0";
     ArrayList<HashMap<String, Object>> dataList = new ArrayList<>();
     LayoutInflater inflater;
     StaggeredGridView gridView;
     Boolean clicked;
-    String status;
+    String status, success;
+    int page, index = 0;
+    String order_val, filter_val = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,88 +59,163 @@ public class NewArrivalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_arrival);
 
         //Initialise
-//        productView = (GridView) findViewById(R.id.products_view);
+        Toolbar toolbar_nologo = (Toolbar) findViewById(R.id.toolbar_nologo);
         viewSwitch = (ImageButton) findViewById(R.id.button_switch);
         sort = (Button) findViewById(R.id.button_sort);
         filter = (Button) findViewById(R.id.button_filter);
         gridView = (StaggeredGridView) findViewById(R.id.product_view);
+        gridView.setOnScrollListener(new EndlessScrollListener());
+
+        //Get Intent
+        Intent i = getIntent();
+        String title = i.getStringExtra("Source");
+
+        //Toolbar set title
+        TextView toolbar_title = (TextView) toolbar_nologo.findViewById(R.id.title_toolbar);
+        toolbar_title.setText(title);
+
+        //Toolbar back Button
+        ImageButton back = (ImageButton) toolbar_nologo.findViewById(R.id.button_back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(NewArrivalActivity.this, HomeActivity.class);
+                startActivity(i);
+            }
+        });
 
         //Switch view button onClickListener
         clicked = true;
+        viewSwitch.setImageResource(R.drawable.test2);
         viewSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(clicked){
+                if (clicked) {
+                    viewSwitch.setImageResource(R.drawable.list_ic);
                     gridView.setColumnCount(2);
                     clicked = false;
-                }else{
+                } else {
+                    viewSwitch.setImageResource(R.drawable.test2);
                     gridView.setColumnCount(1);
                     clicked = true;
                 }
             }
         });
 
-        new GetProducts().execute();
+        //onClick of filter button
+        filter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PopupMenu popup = new PopupMenu(NewArrivalActivity.this, filter);
+                popup.getMenuInflater().inflate(R.menu.fillter_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+
+                        filter_val = (String) item.getTitle();
+                        filter.setText("FILTER - " + item.getTitle());
+                        String filter_url = "http://shop.irinerose.com/api/shop/all/0?order=&style=" + item.getTitle();
+                        new GetProducts().execute(filter_url);
+                        return false;
+                    }
+                });
+
+                popup.show();
+            }
+        });
+
+        //onClick of sort button
+        sort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PopupMenu popup = new PopupMenu(NewArrivalActivity.this, sort);
+                popup.getMenuInflater().inflate(R.menu.sort_menu, popup.getMenu());
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+
+                        order_val = (String) item.getTitle();
+                        sort.setText("SORT - " + item.getTitle());
+                        String order_url = "http://shop.irinerose.com/api/shop/all/0?order=" + item.getTitle() + "&style=";
+                        new GetProducts().execute(order_url);
+                        return false;
+                    }
+                });
+
+                popup.show();
+            }
+        });
+
+        //Load 1st set of images
+        String url_initial = "http://shop.irinerose.com/api/shop/all/0?order=&style=";
+        new GetProducts().execute(url_initial);
     }
 
-    private class GetProducts extends AsyncTask<Void, Void, Void> {
+    private class GetProducts extends AsyncTask<String, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
             // Showing progress dialog
-            pDialog = new ProgressDialog(NewArrivalActivity.this);
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
+//            pDialog = new ProgressDialog(NewArrivalActivity.this);
+//            pDialog.setMessage("Please wait...");
+//            pDialog.setCancelable(false);
+//            pDialog.show();
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(String... params) {
 
-            JSONObject json = jParser.getJSONFromUrlByGet(url);
+            String url_final = params[0];
+            Log.d("Url Final", url_final);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final);
+            Log.d("Json", String.valueOf(json));
             try {
 
-                String page = json.getString("page");
-                String success = json.getString("success");
+                page = json.getInt("page");
+                success = json.getString("success");
 
-                JSONArray productDetails = json.getJSONArray("data");
-                for (int j = 0; j < productDetails.length(); j++) {
-                    JSONObject productObj = productDetails.getJSONObject(j);
+                if (success.equals("true")) {
+                    JSONArray productDetails = json.getJSONArray("data");
+                    for (int j = 0; j < productDetails.length(); j++) {
+                        JSONObject productObj = productDetails.getJSONObject(j);
 
-                    String id = productObj.getString("id");
-                    String price = productObj.getString("price");
-                    String name = productObj.getString("name");
-                    int availability = productObj.getInt("availibility");
-                    String thumbnail = productObj.getString("thumb");
+                        String id = productObj.getString("id");
+                        String price = productObj.getString("price");
+                        String name = productObj.getString("name");
+                        int availability = productObj.getInt("availibility");
+                        String thumbnail = productObj.getString("thumb");
 
-                    switch (availability){
-                        case 0:
-                            status = "Coming Soon";
-                            break;
-                        case 1:
-                            status = "";
-                            break;
-                        case 2:
-                            status = "Pre Order";
-                            break;
-                        case 3:
-                            status = "Out of Stock";
-                            break;
+                        switch (availability) {
+                            case 0:
+                                status = "Coming Soon";
+                                break;
+                            case 1:
+                                status = "";
+                                break;
+                            case 2:
+                                status = "Pre Order";
+                                break;
+                            case 3:
+                                status = "Out of Stock";
+                                break;
+
+                        }
+
+                        // adding each child node to HashMap key => value
+                        HashMap<String, Object> productMap = new HashMap<String, Object>();
+                        productMap.put("Id", id);
+                        productMap.put("Name", name);
+                        productMap.put("Price", price);
+                        productMap.put("Availability", status);
+                        productMap.put("Thumbnail", thumbnail);
+                        dataList.add(productMap);
 
                     }
-
-                    // adding each child node to HashMap key => value
-                    HashMap<String, Object> productMap = new HashMap<String, Object>();
-                    productMap.put("Id", id);
-                    productMap.put("Name", name);
-                    productMap.put("Price", price);
-                    productMap.put("Availability", status);
-                    productMap.put("Thumbnail", thumbnail);
-                    dataList.add(productMap);
-
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -147,11 +228,12 @@ public class NewArrivalActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
 
             // Dismiss the progress dialog
-            if (pDialog.isShowing())
-                pDialog.dismiss();
+//            if (pDialog.isShowing())
+//                pDialog.dismiss();
 
             CustomAdapter adapter = new CustomAdapter(NewArrivalActivity.this, R.layout.product_layout, dataList);
             gridView.setAdapter(adapter);
+            gridView.setVerticalScrollbarPosition(index);
 
         }
     }
@@ -214,6 +296,45 @@ public class NewArrivalActivity extends AppCompatActivity {
 //            convertView.setTag(viewHolder);
 
             return v;
+        }
+    }
+
+    public class EndlessScrollListener implements AbsListView.OnScrollListener {
+
+        private int visibleThreshold = 5;
+        private int currentPage = 0;
+        private int previousTotal = 0;
+        private boolean loading = true;
+
+        public EndlessScrollListener() {
+        }
+
+        public EndlessScrollListener(int visibleThreshold) {
+            this.visibleThreshold = visibleThreshold;
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                             int visibleItemCount, int totalItemCount) {
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    loading = false;
+                    previousTotal = totalItemCount;
+                    currentPage++;
+                }
+            }
+            if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                // I load the next page of gigs using a background task,
+                // but you can call any function here.
+                page++;
+                String url_latest = "http://shop.irinerose.com/api/shop/all/" + page + "?order=" + order_val + "&style=" + filter_val;
+                new GetProducts().execute(url_latest);
+                loading = true;
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
         }
     }
 }

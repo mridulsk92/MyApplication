@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/md_white_1000"
+    android:fillViewport="true">
+
+    <RelativeLayout
+        android:id="@+id/activity_product"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/include"
+            layout="@layout/toolbar_nologo" />
+
+        <com.daimajia.slider.library.SliderLayout
+            android:id="@+id/slider"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_below="@id/include"
+            android:scaleType="fitXY"
+            app:indicator_visibility="visible" />
+
+        <com.daimajia.slider.library.Indicators.PagerIndicator
+            android:id="@+id/slider_indicator"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/slider"
+            android:gravity="center"
+            android:layout_margin="5dp"
+            app:selected_color="#4f4f4f"
+            app:unselected_color="#c0c0c0"
+            android:layout_height="wrap_content"/>
+
+        <RelativeLayout
+            android:id="@+id/product_details_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/slider_indicator"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="7dp">
+
+            <TextView
+                android:id="@+id/text_productname"
+                fontPath="@string/font_bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:gravity="center|top"
+                android:text="Product Name"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="@color/text_color"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/price_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_productname"
+                android:layout_centerHorizontal="true">
+
+                <TextView
+                    android:id="@+id/sub_price"
+                    fontPath="@string/font_bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subprice"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/text_color"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/text_price"
+                    fontPath="@string/font_bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="Price"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/md_red_700"
+                    android:textSize="15sp" />
+
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/offer_text"
+                fontPath="@string/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/price_layout"
+                android:layout_centerHorizontal="true"
+                android:background="@color/md_yellow_300"
+                android:padding="5dp"
+                android:text="Offer"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/text_description"
+                fontPath="@string/font"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/offer_text"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:gravity="center|top"
+                android:padding="5dp"
+                android:text="Description"
+                android:textColor="@color/text_color" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/metal_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/product_details_view"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/gold"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/round_button_gold" />
+
+                <TextView
+                    android:id="@+id/gold_label"
+                    fontPath="fonts/ginora_light.otf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Gold"
+                    android:textColor="@color/text_color"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/silver"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/round_button_silver" />
+
+                <TextView
+                    android:id="@+id/silver_label"
+                    fontPath="fonts/ginora_light.otf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Silver"
+                    android:textColor="@color/text_color"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttons_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/metal_view"
+            android:orientation="vertical">
+
+            <TextView
+                fontPath="@string/font_bold"
+                android:id="@+id/nostock_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:textColor="#808080"
+                android:padding="10dp"
+                android:text="Out Of Stock"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/add_to_bag"
+                fontPath="@string/font_bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="#00c23b"
+                android:text="ADD TO BAG"
+                android:textColor="@color/md_white_1000" />
+
+            <Button
+                android:id="@+id/button_addtobag"
+                fontPath="@string/font_bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="#b1b0b0"
+                android:text="ADD TO WISHLIST"
+                android:textColor="@color/md_white_1000" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buttons_view"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/materials_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="vertical"
+                android:padding="5dp">
+
+                <TextView
+                    fontPath="@string/font_bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MATERIALS"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="#808080" />
+
+                <TextView
+                    android:id="@+id/materials_view"
+                    fontPath="@string/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="Pearl, Pink Tourmaline. Made in gold vermeil: a thick 18k gold layer on sterling silver."
+                    android:textColor="@color/text_color" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/dimensions_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/materials_layout"
+                android:orientation="vertical"
+                android:padding="5dp">
+
+                <TextView
+                    fontPath="@string/font_bold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DIMENSIONS"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="#808080" />
+
+                <TextView
+                    android:id="@+id/dimensions_view"
+                    fontPath="@string/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="57mm/2.2"
+                    android:textColor="@color/text_color" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/recommend_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/dimensions_layout"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/horizontalLine"
+                        android:layout_width="100dp"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/buttons"
+                        android:layout_marginRight="10dp"
+                        android:background="#D3D3D3" />
+
+                    <TextView
+                        fontPath="@string/font_bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WE RECCOMEND"
+                        android:textColor="#808080" />
+
+                    <View
+                        android:id="@+id/horizontalLine2"
+                        android:layout_width="100dp"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/buttons"
+                        android:layout_marginLeft="10dp"
+                        android:background="#D3D3D3" />
+
+                </LinearLayout>
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/viewpager_similar"
+                    android:layout_width="match_parent"
+                    android:layout_height="230dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:clipToPadding="false"
+                    android:gravity="center"
+                    android:paddingRight="190dp" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+</ScrollView>

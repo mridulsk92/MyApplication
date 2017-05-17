@@ -1,8 +1,12 @@
 package com.example.xts015.myapplication;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -10,8 +14,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -27,9 +35,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -57,6 +68,9 @@ public class HomeActivity extends AppCompatActivity {
     ViewPager pager;
     Bundle homeData, shopData;
     TabLayout tabLayout;
+    LinearLayout dotsLayout, shop_footer;
+    TextView shopLabel, appLabel, homeShopLabel, hybridLabel;
+    View line;
 
     JSONParser jParser = new JSONParser();
 
@@ -66,11 +80,19 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         //Initialise
+        Typeface font = Typeface.createFromAsset(HomeActivity.this.getAssets(), getString(R.string.font_bold));
         textList = new ArrayList<>();
         homeData = new Bundle();
         shopData = new Bundle();
+        hybridLabel = (TextView) findViewById(R.id.hybrid_view);
+        line = (View) findViewById(R.id.vertical_line);
         pager = (ViewPager) findViewById(R.id.viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabDots);
+        dotsLayout = (LinearLayout) findViewById(R.id.dots_layout);
+        shop_footer = (LinearLayout) findViewById(R.id.shop_footer_sub);
+        shopLabel = (TextView) findViewById(R.id.shop_label);
+        appLabel = (TextView) findViewById(R.id.label_apps);
+        homeShopLabel = (TextView) findViewById(R.id.label_shops_home);
 
         //Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,27 +115,29 @@ public class HomeActivity extends AppCompatActivity {
                 .withActivity(this)
 //                .withAccountHeader(headerResult)
                 .withSelectedItem(-1)
-                .withAccountHeader(headerResult)
+                .withSliderBackgroundColorRes(R.color.white)
                 .withToolbar(toolbar)
-
-//                .withTranslucentStatusBar(true)
+                .withStickyHeader(R.layout.nav_header)
+                .withTranslucentStatusBar(true)
                 .withDisplayBelowStatusBar(true)
                 .addDrawerItems(
-                        new SecondaryDrawerItem().withName("New Arrival").withSelectable(false),
+                        new SecondaryDrawerItem().withName("New Arrival").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Collection").withSelectable(false),
+                        new SecondaryDrawerItem().withName("Collection").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Smart Modules").withSelectable(false),
+                        new SecondaryDrawerItem().withName("Smart Modules").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Gift Cards").withSelectable(false),
+                        new SecondaryDrawerItem().withName("Gift Cards").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Look Book").withSelectable(false),
+                        new SecondaryDrawerItem().withName("Look Book").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Smart Modules").withSelectable(false),
+                        new SecondaryDrawerItem().withName("Sale").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Smart Modules").withSelectable(false),
+                        new SecondaryDrawerItem().withName("Cart").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
                         new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Smart Modules").withSelectable(false)
+                        new SecondaryDrawerItem().withName("My Account").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font).withIdentifier(7),
+                        new DividerDrawerItem(),
+                        new SecondaryDrawerItem().withName("Settings").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font)
 
                 ).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -128,8 +152,10 @@ public class HomeActivity extends AppCompatActivity {
 
                                 //Clicked LogOut
 
-                            } else if (drawerItem.getIdentifier() == 3) {
+                            } else if (drawerItem.getIdentifier() == 7) {
 
+                                Intent i = new Intent(HomeActivity.this, LoginActivity.class);
+                                startActivity(i);
                             }
                         }
                         return false;
@@ -141,8 +167,54 @@ public class HomeActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         result.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
 
-        //Get Json
+
         new GetImages().execute();
+
+
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                if (position == 0) {
+                    appLabel.setVisibility(View.GONE);
+                    homeShopLabel.setVisibility(View.GONE);
+
+                    hybridLabel.setVisibility(View.GONE);
+                    line.setVisibility(View.GONE);
+                    shop_footer.setVisibility(View.GONE);
+                    shopLabel.setVisibility(View.GONE);
+                    dotsLayout.setGravity(Gravity.RIGHT);
+                } else if (position == 1) {
+                    appLabel.setVisibility(View.VISIBLE);
+                    homeShopLabel.setVisibility(View.VISIBLE);
+
+                    hybridLabel.setVisibility(View.GONE);
+                    line.setVisibility(View.GONE);
+                    shop_footer.setVisibility(View.GONE);
+                    shopLabel.setVisibility(View.GONE);
+                    dotsLayout.setGravity(Gravity.CENTER);
+                } else {
+                    appLabel.setVisibility(View.GONE);
+                    homeShopLabel.setVisibility(View.GONE);
+
+                    hybridLabel.setVisibility(View.VISIBLE);
+                    line.setVisibility(View.VISIBLE);
+                    dotsLayout.setGravity(Gravity.LEFT);
+//                    shop_footer.setVisibility(View.VISIBLE);
+                    shopLabel.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
     }
 
@@ -155,36 +227,37 @@ public class HomeActivity extends AppCompatActivity {
             JSONObject json = jParser.getJSONFromUrlByGet(url);
             try {
 
-                JSONObject shop_obj = json.getJSONObject(TAG_SHOP);
+                if (json != null) {
+                    JSONObject shop_obj = json.getJSONObject(TAG_SHOP);
 
-                JSONArray shopContents = shop_obj.getJSONArray(TAG_CONTENTS);
-                for (int j = 0; j < shopContents.length(); j++) {
-                    JSONObject contents_obj = shopContents.getJSONObject(j);
-                    JSONObject data_obj = contents_obj.getJSONObject(TAG_DATA);
+                    JSONArray shopContents = shop_obj.getJSONArray(TAG_CONTENTS);
+                    for (int j = 0; j < shopContents.length(); j++) {
+                        JSONObject contents_obj = shopContents.getJSONObject(j);
+                        JSONObject data_obj = contents_obj.getJSONObject(TAG_DATA);
 
-                    JSONArray imgs = data_obj.getJSONArray(TAG_IMGS);
-                    for (int i = 0; i < imgs.length(); i++) {
-                        String str_imgs = imgs.getString(i);
-                        Log.i("TAG_imgs", str_imgs);
-                        shopImages.add(i,str_imgs);
+                        JSONArray imgs = data_obj.getJSONArray(TAG_IMGS);
+                        for (int i = 0; i < imgs.length(); i++) {
+                            String str_imgs = imgs.getString(i);
+                            Log.i("TAG_imgs", str_imgs);
+                            shopImages.add(i, str_imgs);
+                        }
+                        String str_url = contents_obj.getString(TAG_URL);
+
+                        Log.i("TAG_url", str_url);
+                        String str_target = contents_obj.getString(TAG_TARGET);
+
+                        Log.i("TAG_target", str_target);
                     }
-                    String str_url = contents_obj.getString(TAG_URL);
+                    JSONObject home = json.getJSONObject(TAG_HOME);
 
-                    Log.i("TAG_url", str_url);
-                    String str_target = contents_obj.getString(TAG_TARGET);
+                    JSONArray homeContents = home.getJSONArray(TAG_HOME_OBJ_CONTENTS);
+                    for (int i = 0; i < homeContents.length(); i++) {
+                        JSONObject home_obj = homeContents.getJSONObject(i);
+                        JSONObject home_data = home_obj.getJSONObject(TAG_HOME_OBJ_CONTENTS_OBJ_DATA);
 
-                    Log.i("TAG_target", str_target);
-                }
-                JSONObject home = json.getJSONObject(TAG_HOME);
-
-                JSONArray homeContents = home.getJSONArray(TAG_HOME_OBJ_CONTENTS);
-                for (int i = 0; i < homeContents.length(); i++) {
-                    JSONObject home_obj = homeContents.getJSONObject(i);
-                    JSONObject home_data = home_obj.getJSONObject(TAG_HOME_OBJ_CONTENTS_OBJ_DATA);
-
-                    String img = home_data.getString(TAG_IMG);
-                    bannerImages.add(i, img);
-                    Log.i("Image", img);
+                        String img = home_data.getString(TAG_IMG);
+                        bannerImages.add(i, img);
+                        Log.i("Image", img);
 
 //                    String home_url = home_data.getString(TAG_HOME_OBJ_CONTENTS_OBJ_URL);
 //
@@ -192,10 +265,11 @@ public class HomeActivity extends AppCompatActivity {
 //                    String str_home_obj_contents_obj_target = home_data.getString(TAG_HOME_OBJ_CONTENTS_OBJ_TARGET);
 //
 //                    Log.i("TAG_home_obj_contents_obj_target", str_home_obj_contents_obj_target);
+                    }
                 }
-
             } catch (JSONException e) {
             }
+
             return null;
         }
 
@@ -207,12 +281,10 @@ public class HomeActivity extends AppCompatActivity {
             shopData.putStringArrayList("Shop Images", shopImages);
             pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
             pager.setCurrentItem(1);
-            pager.setPageTransformer(true, new DepthPageTransformer());
-//            tabLayout.setupWithViewPager(pager);
+            tabLayout.setupWithViewPager(pager);
 
         }
     }
-
 
     class MyPagerAdapter extends FragmentPagerAdapter {
 
@@ -223,6 +295,7 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         public android.support.v4.app.Fragment getItem(int position) {
+
             switch (position) {
                 case 0:
                     return new AppsFragment();
@@ -244,40 +317,19 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public class DepthPageTransformer implements ViewPager.PageTransformer {
-        private static final float MIN_SCALE = 0.75f;
+    public boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
+            return !ipAddr.equals("");
 
-        public void transformPage(View view, float position) {
-            int pageWidth = view.getWidth();
-
-            if (position < -1) { // [-Infinity,-1)
-                // This page is way off-screen to the left.
-                view.setAlpha(0);
-
-            } else if (position <= 0) { // [-1,0]
-                // Use the default slide transition when moving to the left page
-                view.setAlpha(1);
-                view.setTranslationX(0);
-                view.setScaleX(1);
-                view.setScaleY(1);
-
-            } else if (position <= 1) { // (0,1]
-                // Fade the page out.
-                view.setAlpha(1 - position);
-
-                // Counteract the default slide transition
-                view.setTranslationX(pageWidth * -position);
-
-                // Scale the page down (between MIN_SCALE and 1)
-                float scaleFactor = MIN_SCALE
-                        + (1 - MIN_SCALE) * (1 - Math.abs(position));
-                view.setScaleX(scaleFactor);
-                view.setScaleY(scaleFactor);
-
-            } else { // (1,+Infinity]
-                // This page is way off-screen to the right.
-                view.setAlpha(0);
-            }
+        } catch (Exception e) {
+            return false;
         }
+
+    }
+
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 }

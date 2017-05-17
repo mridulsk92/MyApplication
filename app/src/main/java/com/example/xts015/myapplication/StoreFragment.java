@@ -1,6 +1,7 @@
 package com.example.xts015.myapplication;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +14,12 @@ import android.widget.ListView;
 
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.BaseSliderView;
+import com.daimajia.slider.library.SliderTypes.DefaultSliderView;
 import com.daimajia.slider.library.SliderTypes.TextSliderView;
 
 import java.util.ArrayList;
+
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class StoreFragment extends android.support.v4.app.Fragment {
 
@@ -34,7 +38,7 @@ public class StoreFragment extends android.support.v4.app.Fragment {
         //Set data to ListView
         shopImages = getArguments().getStringArrayList("Shop Images");
         String[] optionArray = getActivity().getResources().getStringArray(R.array.Options);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, optionArray);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.layout_options_list, optionArray);
         options.setAdapter(adapter);
 
         //onClick of ListView
@@ -42,21 +46,20 @@ public class StoreFragment extends android.support.v4.app.Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                switch (position){
+                switch (position) {
                     case 0:
-                        Intent i = new Intent(getActivity(),NewArrivalActivity.class);
+                        Intent i = new Intent(getActivity(), NewArrivalActivity.class);
                         i.putExtra("Source", "New Arrival");
                         startActivity(i);
                         break;
 
                 }
-
             }
         });
 
         for (int i = 0; i < shopImages.size(); i++) {
             Log.d("Test", shopImages.get(i));
-            TextSliderView textSliderView = new TextSliderView(getActivity());
+            DefaultSliderView textSliderView = new DefaultSliderView(getActivity());
             textSliderView.image(shopImages.get(i));
             mSlider.addSlider(textSliderView);
         }

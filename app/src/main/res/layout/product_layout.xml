@@ -3,59 +3,67 @@
     android:id="@+id/card_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardUseCompatPadding="true"
-    app:contentPadding="10dp"
     android:layout_alignParentBottom="true"
     android:layout_alignParentLeft="true"
-    android:layout_alignParentStart="true">
+    android:layout_alignParentStart="true"
+    app:cardUseCompatPadding="true">
 
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="150dp"
+        android:layout_height="220dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
+            android:layout_height="250dp"
             android:orientation="vertical"
-            android:padding="10dp"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/common_google_signin_btn_icon_dark"
-                android:id="@+id/thumbnail" />
+            android:weightSum="1">
 
             <TextView
-                android:text="Id"
-                android:visibility="gone"
+                android:id="@+id/textView_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView_id" />
+                android:text="Id"
+                android:visibility="gone" />
 
-            <TextView
-                android:text="name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="148dp"
                 android:layout_margin="2dp"
-                android:textStyle="bold"
-                android:id="@+id/textView_name"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                android:layout_height="100dp"
+                android:layout_weight="0.13"
+                app:srcCompat="@drawable/common_google_signin_btn_icon_dark" />
 
-            <TextView
-                android:text="price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:id="@+id/textView_price" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="5dp">
 
-            <TextView
-                android:text="availability"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                android:id="@+id/textView_availability" />
+                <TextView
+                    android:id="@+id/textView_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="name"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+                <TextView
+                    android:id="@+id/textView_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="price"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textView_availability"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="availability"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            </LinearLayout>
         </LinearLayout>
 
     </RelativeLayout>

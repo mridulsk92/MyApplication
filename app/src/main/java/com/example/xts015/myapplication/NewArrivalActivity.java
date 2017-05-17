@@ -3,7 +3,10 @@ package com.example.xts015.myapplication;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -12,13 +15,17 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,13 +37,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.example.xts015.myapplication.HomeActivity.TAG_DATA;
-import static com.example.xts015.myapplication.HomeActivity.TAG_IMGS;
-import static com.example.xts015.myapplication.HomeActivity.TAG_TARGET;
-import static com.example.xts015.myapplication.HomeActivity.TAG_URL;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 
 public class NewArrivalActivity extends AppCompatActivity {
 
@@ -46,12 +52,28 @@ public class NewArrivalActivity extends AppCompatActivity {
     ProgressDialog pDialog;
     JSONParser jParser = new JSONParser();
     ArrayList<HashMap<String, Object>> dataList = new ArrayList<>();
+    ArrayList<HashMap<String, Object>> moreDataList = new ArrayList<>();
     LayoutInflater inflater;
     StaggeredGridView gridView;
     Boolean clicked;
     String status, success;
     int page, index = 0;
     String order_val, filter_val = null;
+    String order_st, filter_st;
+    CustomAdapter adapter;
+    RelativeLayout progressLayout;
+    String loadMore = "false";
+    TextView empty;
+
+    int mVisibleThreshold = 5;
+    int mCurrentPage = 0;
+    int mPreviousTotal = 0;
+    boolean mLoading = true;
+    boolean mLastPage = false;
+    boolean userScrolled = false;
+    Typeface font, font_bold;
+    int myLastVisiblePos;
+    LinearLayout button_layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +81,17 @@ public class NewArrivalActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_arrival);
 
         //Initialise
+        font = Typeface.createFromAsset(NewArrivalActivity.this.getAssets(), getString(R.string.font));
+        font_bold = Typeface.createFromAsset(NewArrivalActivity.this.getAssets(), getString(R.string.font_bold));
+
         Toolbar toolbar_nologo = (Toolbar) findViewById(R.id.toolbar_nologo);
         viewSwitch = (ImageButton) findViewById(R.id.button_switch);
         sort = (Button) findViewById(R.id.button_sort);
         filter = (Button) findViewById(R.id.button_filter);
         gridView = (StaggeredGridView) findViewById(R.id.product_view);
-        gridView.setOnScrollListener(new EndlessScrollListener());
+        progressLayout = (RelativeLayout) findViewById(R.id.progress_layout);
+        empty = (TextView) findViewById(R.id.empty);
+        button_layout = (LinearLayout) findViewById(R.id.buttons);
 
         //Get Intent
         Intent i = getIntent();
@@ -86,18 +113,18 @@ public class NewArrivalActivity extends AppCompatActivity {
 
         //Switch view button onClickListener
         clicked = true;
-        viewSwitch.setImageResource(R.drawable.test2);
+        viewSwitch.setImageResource(R.drawable.list_ic);
         viewSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if (clicked) {
-                    viewSwitch.setImageResource(R.drawable.list_ic);
-                    gridView.setColumnCount(2);
-                    clicked = false;
-                } else {
                     viewSwitch.setImageResource(R.drawable.test2);
                     gridView.setColumnCount(1);
+                    clicked = false;
+                } else {
+                    viewSwitch.setImageResource(R.drawable.list_ic);
+                    gridView.setColumnCount(2);
                     clicked = true;
                 }
             }
@@ -114,9 +141,20 @@ public class NewArrivalActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
 
+                        if (item.getTitle().equals("Chic")) {
+                            filter_st = "chic";
+                        } else if (item.getTitle().equals("Active")) {
+                            filter_st = "active";
+                        } else if (item.getTitle().equals("Classic")) {
+                            filter_st = "classic";
+                        } else {
+                            filter_st = null;
+                        }
                         filter_val = (String) item.getTitle();
-                        filter.setText("FILTER - " + item.getTitle());
-                        String filter_url = "http://shop.irinerose.com/api/shop/all/0?order=&style=" + item.getTitle();
+                        filter.setText(item.getTitle());
+                        dataList.clear();
+
+                        String filter_url = "http://shop.irinerose.com/api/shop/all/0?order=" + order_st + "&style=" + filter_st;
                         new GetProducts().execute(filter_url);
                         return false;
                     }
@@ -137,9 +175,17 @@ public class NewArrivalActivity extends AppCompatActivity {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
 
+                        if (item.getTitle().equals("High")) {
+                            order_st = "high";
+                        } else if (item.getTitle().equals("Low")) {
+                            order_st = "low";
+                        } else {
+                            order_st = "latest";
+                        }
                         order_val = (String) item.getTitle();
-                        sort.setText("SORT - " + item.getTitle());
-                        String order_url = "http://shop.irinerose.com/api/shop/all/0?order=" + item.getTitle() + "&style=";
+                        sort.setText(item.getTitle());
+                        dataList.clear();
+                        String order_url = "http://shop.irinerose.com/api/shop/all/0?order=" + order_st + "&style=" + filter_st;
                         new GetProducts().execute(order_url);
                         return false;
                     }
@@ -149,9 +195,77 @@ public class NewArrivalActivity extends AppCompatActivity {
             }
         });
 
+        //GridView onClickItem
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                String product_id = ((TextView) view.findViewById(R.id.textView_id)).getText().toString();
+                Intent i = new Intent(NewArrivalActivity.this, ProductActivity.class);
+                i.putExtra("Product Id", product_id);
+                startActivity(i);
+            }
+        });
+
         //Load 1st set of images
-        String url_initial = "http://shop.irinerose.com/api/shop/all/0?order=&style=";
+        String url_initial = "http://shop.irinerose.com/api/shop/all/0?order=" + order_st + "&style=" + filter_st;
         new GetProducts().execute(url_initial);
+        implementScrollListener();
+
+    }
+
+    // Implement scroll listener
+    private void implementScrollListener() {
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(AbsListView arg0, int scrollState) {
+                // If scroll state is touch scroll then set userScrolled
+                // true
+                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    userScrolled = true;
+
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                // Now check if userScrolled is true and also check if
+                // the item is end then update list view and set
+                // userScrolled to false
+
+                int currentFirstVisPos = view.getFirstVisiblePosition();
+                if (currentFirstVisPos > myLastVisiblePos) {
+                    //scroll down
+                    Log.d("TEST", "DOWN");
+//                    button_layout.setVisibility(View.GONE);
+//                    button_layout.animate().alpha(0.0f);
+                }
+                if (currentFirstVisPos < myLastVisiblePos) {
+                    //scroll up
+                    Log.d("TEST", "UP");
+//                    button_layout.setVisibility(View.VISIBLE);
+//                    button_layout.animate().alpha(1.0f);
+                }
+                myLastVisiblePos = currentFirstVisPos;
+
+
+                if (userScrolled && firstVisibleItem + visibleItemCount == totalItemCount) {
+
+                    if (success.equals("true")) {
+                        loadMore = "true";
+                        page++;
+                        userScrolled = false;
+                        String url_latest = "http://shop.irinerose.com/api/shop/all/" + page + "?order=" + order_val + "&style=" + filter_val;
+                        new LoadMoreProducts().execute(url_latest);
+                    } else {
+                        loadMore = "false";
+                        moreDataList.clear();
+                    }
+                }
+            }
+        });
     }
 
     private class GetProducts extends AsyncTask<String, Void, Void> {
@@ -160,11 +274,11 @@ public class NewArrivalActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
 
-            // Showing progress dialog
-//            pDialog = new ProgressDialog(NewArrivalActivity.this);
-//            pDialog.setMessage("Please wait...");
-//            pDialog.setCancelable(false);
-//            pDialog.show();
+            //Showing progress dialog
+            pDialog = new ProgressDialog(NewArrivalActivity.this);
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
         }
 
         @Override
@@ -174,51 +288,60 @@ public class NewArrivalActivity extends AppCompatActivity {
             Log.d("Url Final", url_final);
             JSONObject json = jParser.getJSONFromUrlByGet(url_final);
             Log.d("Json", String.valueOf(json));
-            try {
+            if (json != null) {
+                try {
 
-                page = json.getInt("page");
-                success = json.getString("success");
+                    page = json.getInt("page");
+                    success = json.getString("success");
 
-                if (success.equals("true")) {
-                    JSONArray productDetails = json.getJSONArray("data");
-                    for (int j = 0; j < productDetails.length(); j++) {
-                        JSONObject productObj = productDetails.getJSONObject(j);
+                    if (success.equals("true")) {
 
-                        String id = productObj.getString("id");
-                        String price = productObj.getString("price");
-                        String name = productObj.getString("name");
-                        int availability = productObj.getInt("availibility");
-                        String thumbnail = productObj.getString("thumb");
+                        JSONArray productDetails = json.getJSONArray("data");
+                        for (int j = 0; j < productDetails.length(); j++) {
+                            JSONObject productObj = productDetails.getJSONObject(j);
 
-                        switch (availability) {
-                            case 0:
-                                status = "Coming Soon";
-                                break;
-                            case 1:
-                                status = "";
-                                break;
-                            case 2:
-                                status = "Pre Order";
-                                break;
-                            case 3:
-                                status = "Out of Stock";
-                                break;
+                            String id = productObj.getString("id");
+                            String offer = productObj.getString("offer");
+                            String subprice = productObj.getString("subprice");
+                            String price = productObj.getString("price");
+                            String name = productObj.getString("name");
+                            int availability = productObj.getInt("availibility");
+                            String thumbnail = productObj.getString("thumb");
+
+                            switch (availability) {
+                                case 0:
+                                    status = "Coming Soon";
+                                    break;
+                                case 1:
+                                    status = "";
+                                    break;
+                                case 2:
+                                    status = "Pre Order";
+                                    break;
+                                case 3:
+                                    status = "Out of Stock";
+                                    break;
+
+                            }
+
+                            // adding each child node to HashMap key => value
+                            HashMap<String, Object> productMap = new HashMap<String, Object>();
+                            productMap.put("Id", id);
+                            productMap.put("Name", name);
+                            productMap.put("Price", price);
+                            productMap.put("Offer", offer);
+                            productMap.put("Subprice", subprice);
+                            productMap.put("Availability", status);
+                            productMap.put("Thumbnail", thumbnail);
+                            dataList.add(productMap);
 
                         }
-
-                        // adding each child node to HashMap key => value
-                        HashMap<String, Object> productMap = new HashMap<String, Object>();
-                        productMap.put("Id", id);
-                        productMap.put("Name", name);
-                        productMap.put("Price", price);
-                        productMap.put("Availability", status);
-                        productMap.put("Thumbnail", thumbnail);
-                        dataList.add(productMap);
-
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            } else {
+                Toast.makeText(NewArrivalActivity.this, "Nothing more to show", Toast.LENGTH_SHORT).show();
             }
             return null;
         }
@@ -228,12 +351,103 @@ public class NewArrivalActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
 
             // Dismiss the progress dialog
-//            if (pDialog.isShowing())
-//                pDialog.dismiss();
-
-            CustomAdapter adapter = new CustomAdapter(NewArrivalActivity.this, R.layout.product_layout, dataList);
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+            adapter = new CustomAdapter(NewArrivalActivity.this, R.layout.product_view_new, dataList);
             gridView.setAdapter(adapter);
-            gridView.setVerticalScrollbarPosition(index);
+        }
+    }
+
+    private class LoadMoreProducts extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            moreDataList.clear();
+            if (progressLayout.getVisibility() == View.GONE) {
+                progressLayout.setVisibility(View.VISIBLE);
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            String url_final = params[0];
+            Log.d("Url Final", url_final);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final);
+            Log.d("Json", String.valueOf(json));
+            if (json != null) {
+                try {
+
+                    page = json.getInt("page");
+                    success = json.getString("success");
+
+                    JSONArray productDetails = json.getJSONArray("data");
+                    if (productDetails != null) {
+                        for (int j = 0; j < productDetails.length(); j++) {
+                            JSONObject productObj = productDetails.getJSONObject(j);
+
+                            String id = productObj.getString("id");
+                            String offer = productObj.getString("offer");
+                            String subprice = productObj.getString("subprice");
+                            String price = productObj.getString("price");
+                            String name = productObj.getString("name");
+                            int availability = productObj.getInt("availibility");
+                            String thumbnail = productObj.getString("thumb");
+
+                            switch (availability) {
+                                case 0:
+                                    status = "Coming Soon";
+                                    break;
+                                case 1:
+                                    status = "";
+                                    break;
+                                case 2:
+                                    status = "Pre Order";
+                                    break;
+                                case 3:
+                                    status = "Out of Stock";
+                                    break;
+
+                            }
+
+                            // adding each child node to HashMap key => value
+                            HashMap<String, Object> productMap = new HashMap<String, Object>();
+                            productMap.put("Id", id);
+                            productMap.put("Name", name);
+                            productMap.put("Offer", offer);
+                            productMap.put("Subprice", subprice);
+                            productMap.put("Price", price);
+                            productMap.put("Availability", status);
+                            productMap.put("Thumbnail", thumbnail);
+                            moreDataList.add(productMap);
+
+                        }
+                    } else {
+                        Toast.makeText(NewArrivalActivity.this, "Nothing more to show", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            if (progressLayout.getVisibility() == View.VISIBLE) {
+                progressLayout.setVisibility(View.GONE);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            }
+
+            adapter.addAll(moreDataList);
+            adapter.notifyDataSetChanged();
+            gridView.setAdapter(adapter);
 
         }
     }
@@ -253,7 +467,7 @@ public class NewArrivalActivity extends AppCompatActivity {
             TextView view_id;
             TextView view_name;
             TextView view_price;
-            TextView view_availability;
+            TextView view_availability, view_subprice, view_offer;
         }
 
         //Initialise
@@ -262,79 +476,64 @@ public class NewArrivalActivity extends AppCompatActivity {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
 
-            View v;
             if (convertView == null) {
 
-                LayoutInflater li = getLayoutInflater();
-                v = li.inflate(R.layout.product_layout, null);
+                //inflate the custom layout
+                convertView = inflater.from(parent.getContext()).inflate(R.layout.product_view_new, parent, false);
+                viewHolder = new ViewHolder();
+
+                //cache the views
+                viewHolder.view_thumbnail = (ImageView) convertView.findViewById(R.id.thumbnail);
+                viewHolder.view_subprice = (TextView) convertView.findViewById(R.id.textView_subprice);
+                viewHolder.view_id = (TextView) convertView.findViewById(R.id.textView_id);
+                viewHolder.view_name = (TextView) convertView.findViewById(R.id.textView_name);
+                viewHolder.view_price = (TextView) convertView.findViewById(R.id.textView_price);
+                viewHolder.view_availability = (TextView) convertView.findViewById(R.id.textView_availability);
+                viewHolder.view_offer = (TextView) convertView.findViewById(R.id.offer_view);
+
+                //link the cached views to the convertview
+                convertView.setTag(viewHolder);
+
             } else {
-                v = convertView;
+                viewHolder = (ViewHolder) convertView.getTag();
             }
 
-            //inflate the custom layout
-            viewHolder = new ViewHolder();
-
-            //cache the views
-            ImageView view_thumbnail = (ImageView) v.findViewById(R.id.thumbnail);
-            TextView view_id = (TextView) v.findViewById(R.id.textView_id);
-            TextView view_name = (TextView) v.findViewById(R.id.textView_name);
-            TextView view_price = (TextView) v.findViewById(R.id.textView_price);
-            TextView view_availability = (TextView) v.findViewById(R.id.textView_availability);
-
             //set Values
-            view_id.setText(dataList.get(position).get("Id").toString());
-            view_name.setText(dataList.get(position).get("Name").toString());
-            view_price.setText(dataList.get(position).get("Price").toString());
-            view_availability.setText(dataList.get(position).get("Availability").toString());
+            viewHolder.view_id.setText(dataList.get(position).get("Id").toString());
+            viewHolder.view_name.setText(dataList.get(position).get("Name").toString());
+            viewHolder.view_price.setText(dataList.get(position).get("Price").toString());
+//            viewHolder.view_subprice.setText(dataList.get(position).get("Subprice").toString());
+            viewHolder.view_offer.setText(dataList.get(position).get("Offer").toString());
+            viewHolder.view_availability.setText(dataList.get(position).get("Availability").toString());
+            viewHolder.view_name.setTypeface(font);
+            viewHolder.view_price.setTypeface(font_bold);
+            viewHolder.view_subprice.setTypeface(font_bold);
+
+            // Offerview
+//            if (dataList.get(position).get("Offer").equals("0")) {
+//                viewHolder.view_price.setVisibility(View.GONE);
+////                offer_view.setVisibility(View.GONE);
+//            } else {
+//                viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+////                offer_view.setText(offer +" off");
+//            }
 
             //Load Thumbnail
             Picasso.with(NewArrivalActivity.this)
                     .load(dataList.get(position).get("Thumbnail").toString())
-                    .into(view_thumbnail);
+                    .into(viewHolder.view_thumbnail);
+//            view_thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
 
             //link the cached views to the convertview
 //            convertView.setTag(viewHolder);
 
-            return v;
+            return convertView;
         }
     }
 
-    public class EndlessScrollListener implements AbsListView.OnScrollListener {
-
-        private int visibleThreshold = 5;
-        private int currentPage = 0;
-        private int previousTotal = 0;
-        private boolean loading = true;
-
-        public EndlessScrollListener() {
-        }
-
-        public EndlessScrollListener(int visibleThreshold) {
-            this.visibleThreshold = visibleThreshold;
-        }
-
-        @Override
-        public void onScroll(AbsListView view, int firstVisibleItem,
-                             int visibleItemCount, int totalItemCount) {
-            if (loading) {
-                if (totalItemCount > previousTotal) {
-                    loading = false;
-                    previousTotal = totalItemCount;
-                    currentPage++;
-                }
-            }
-            if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                // I load the next page of gigs using a background task,
-                // but you can call any function here.
-                page++;
-                String url_latest = "http://shop.irinerose.com/api/shop/all/" + page + "?order=" + order_val + "&style=" + filter_val;
-                new GetProducts().execute(url_latest);
-                loading = true;
-            }
-        }
-
-        @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-        }
+    @Override
+    protected void attachBaseContext(Context context) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 }

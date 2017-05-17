@@ -30,10 +30,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="5dp"
             android:text="Title"
-            android:textStyle="bold"
+            fontPath="@string/font_bold"
             android:layout_weight="0.94"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center"
+            android:layout_margin="15dp"
+            android:layout_toRightOf="@+id/logo"
+            android:src="@drawable/bag_ic" />
 
     </android.support.v7.widget.Toolbar>
 </android.support.design.widget.AppBarLayout>

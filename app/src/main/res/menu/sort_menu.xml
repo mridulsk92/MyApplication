@@ -9,4 +9,8 @@
         android:id="@+id/low"
         android:title="Low"/>
 
+    <item
+        android:id="@+id/latest"
+        android:title="Latest"/>
+
 </menu>

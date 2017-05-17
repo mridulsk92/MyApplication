@@ -13,4 +13,8 @@
         android:id="@+id/classic"
         android:title="Classic"/>
 
+    <item
+        android:id="@+id/all"
+        android:title="All"/>
+
 </menu>

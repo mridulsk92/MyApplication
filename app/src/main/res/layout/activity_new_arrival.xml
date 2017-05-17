@@ -3,43 +3,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_new_arrival"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="match_parent"
     tools:context="com.example.xts015.myapplication.NewArrivalActivity">
 
-    <include layout="@layout/toolbar_nologo"
-        android:id="@+id/include" />
-
+    <include
+        android:id="@+id/include"
+        layout="@layout/toolbar_nologo" />
 
     <View
+        android:id="@+id/horizontalLine"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:id="@+id/horizontalLine"
         android:layout_below="@+id/buttons"
         android:background="#D3D3D3" />
 
     <LinearLayout
+        android:id="@+id/buttons"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/buttons"
-        android:orientation="horizontal"
-        android:layout_below="@+id/include"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/include"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/button_switch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:scaleType="fitCenter"
             android:layout_weight="1"
-            android:background="@color/white" />
+            android:background="@color/white"
+            android:padding="12dp"
+            android:scaleType="fitCenter" />
 
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
-            android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
             android:background="#D3D3D3" />
 
         <Button
@@ -47,25 +48,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="1dp"
             android:background="@color/white"
+            fontPath="@string/font_bold"
+            android:padding="1dp"
             android:text="SORT"
             android:textColor="#080000" />
 
         <View
             android:layout_width="1dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
             android:layout_height="match_parent"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
             android:background="#D3D3D3" />
 
         <Button
             android:id="@+id/button_filter"
             android:layout_width="0dp"
-            android:padding="1dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            fontPath="@string/font_bold"
             android:background="@color/white"
+            android:padding="1dp"
             android:text="FILTER" />
 
     </LinearLayout>
@@ -75,9 +78,27 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/product_view"
         android:layout_width="match_parent"
-        android:layout_below="@+id/horizontalLine"
         android:layout_height="match_parent"
-        app:item_margin="8dp"
-        app:column_count="1" />
+        android:layout_above="@+id/progress_layout"
+        android:layout_below="@+id/horizontalLine"
+        app:column_count="2"
+        app:item_margin="8dp" />
+
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="Nothing To Show"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <include
+        android:id="@+id/progress_layout"
+        layout="@layout/progress_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone" />
 
 </RelativeLayout>

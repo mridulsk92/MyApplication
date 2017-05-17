@@ -2,6 +2,10 @@
     <string name="app_name">Irine Rose</string>
     <string name="drawer_opened">Irine Rose</string>
     <string name="drawer_closed">Irine Rose</string>
+    <string name="forgot_pwd"><u>Forgotten Password ?</u></string>
+    <string name="sign_up_st"><u>Sign Up</u></string>
+    <string name="font">fonts/LarkeNeue_Thin.ttf</string>
+    <string name="font_bold">fonts/LarkeNeue_Bold.ttf</string>
 
     <string-array name="Options">
         <item>New Arrival</item>
@@ -9,4 +13,6 @@
         <item>Gift Card</item>
         <item>Smart Modules</item>
     </string-array>
+
+
 </resources>

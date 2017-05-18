@@ -14,6 +14,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -29,8 +31,9 @@
         </activity>
         <activity android:name=".NewArrivalActivity" />
         <activity android:name=".ProductActivity" />
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".CollectionActivity"></activity>
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".CollectionActivity" />
+        <activity android:name=".CollectionDetailsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/banner_image"
+            android:layout_width="150dp"
+            android:src="@drawable/profile"
+            android:layout_height="150dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_gravity="bottom"
+            android:gravity="center_horizontal"
+            android:padding="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/item_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:text="Id"/>
+
+            <TextView
+                fontPath="@string/font"
+                android:id="@+id/item_name"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:layout_marginBottom="3dp"
+                android:layout_centerHorizontal="true"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color"
+                android:text="Name"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+            <TextView
+                fontPath="@string/font"
+                android:id="@+id/item_description"
+                android:layout_width="match_parent"
+                android:textColor="@color/text_color"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="Description"/>
+
+            <Button
+                fontPath="@string/font"
+                android:id="@+id/shop_button"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_centerHorizontal="true"
+                android:textColor="@color/text_color"
+                android:background="@drawable/button_bg"
+                android:padding="5dp"
+                android:text="SHOP NOW"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -510,12 +510,18 @@ public class NewArrivalActivity extends AppCompatActivity {
             viewHolder.view_subprice.setTypeface(font_bold);
 
             // Offerview
-//            if (dataList.get(position).get("Offer").equals("0")) {
-//                viewHolder.view_price.setVisibility(View.GONE);
-////                offer_view.setVisibility(View.GONE);
+//            if (loadMore == "false") {
+//                if (dataList.get(position).get("Offer").equals("0")) {
+//                    viewHolder.view_price.setVisibility(View.GONE);
+//                } else {
+//                    viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//                }
 //            } else {
-//                viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-////                offer_view.setText(offer +" off");
+//                if (moreDataList.get(position).get("Offer").equals("0")) {
+//                    viewHolder.view_price.setVisibility(View.GONE);
+//                } else {
+//                    viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//                }
 //            }
 
             //Load Thumbnail

@@ -100,7 +100,7 @@ public class HomeFragment extends android.support.v4.app.Fragment {
 
             //set the data to be displayed
             Log.d("IMG", bannerImages.get(position));
-            Picasso.with(getActivity()).load(bannerImages.get(position)).fit().into(viewHolder.bannerImg);
+            Picasso.with(getActivity()).load(bannerImages.get(position)).into(viewHolder.bannerImg);
 
             return convertView;
         }

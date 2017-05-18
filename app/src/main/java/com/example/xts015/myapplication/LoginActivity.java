@@ -13,6 +13,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
+import com.facebook.login.widget.LoginButton;
+
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -34,14 +38,23 @@ public class LoginActivity extends AppCompatActivity {
     Button signIn;
     ProgressDialog pDialog;
     EditText emailView, passwordView;
+    String email_st, password_st;
     TextView forgotView, signupView;
+    private LoginButton loginButton;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Initialise FB
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+
+        //Set Content View
         setContentView(R.layout.activity_login);
 
-        //Initialise
+        loginButton = (LoginButton)findViewById(R.id.login_button);
         signIn = (Button) findViewById(R.id.signin_btn);
         emailView = (EditText) findViewById(R.id.email_text);
         passwordView = (EditText) findViewById(R.id.password_txt);
@@ -53,9 +66,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-                startActivity(i);
-//                new PostAttachment().execute();
+                email_st = emailView.getText().toString();
+                password_st = passwordView.getText().toString();
+//                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+//                startActivity(i);
+                new PostAttachment().execute();
             }
         });
 
@@ -82,8 +97,8 @@ public class LoginActivity extends AppCompatActivity {
                 URL url = new URL("http://shop.irinerose.com/api/user/login");
 
                 JSONObject postDataParams = new JSONObject();
-                postDataParams.put("password", "test");
-                postDataParams.put("email", "test@gmail.com");
+                postDataParams.put("password", password_st);
+                postDataParams.put("email", email_st);
                 Log.e("params", postDataParams.toString());
 
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

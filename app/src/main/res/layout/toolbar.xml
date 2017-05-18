@@ -30,7 +30,7 @@
             <ImageView
                 android:id="@+id/logo"
                 android:layout_width="0dp"
-                android:layout_weight="8"
+                android:layout_weight="9"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:src="@drawable/logo" />
@@ -38,9 +38,9 @@
             <ImageView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:layout_gravity="right|center"
-                android:layout_margin="15dp"
+                android:layout_margin="10dp"
                 android:src="@drawable/bag_ic" />
 
         </LinearLayout>

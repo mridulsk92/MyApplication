@@ -32,9 +32,10 @@
             android:layout_gravity="center"
             android:padding="5dp"
             android:text="Title"
-            fontPath="@string/font_bold"
+            fontPath="@string/font"
+            android:textSize="25sp"
             android:layout_weight="0.94"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <ImageView
             android:layout_width="wrap_content"

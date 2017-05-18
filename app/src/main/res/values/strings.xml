@@ -6,13 +6,16 @@
     <string name="sign_up_st"><u>Sign Up</u></string>
     <string name="font">fonts/LarkeNeue_Thin.ttf</string>
     <string name="font_bold">fonts/LarkeNeue_Bold.ttf</string>
+    <string name="facebook_app_id">1280315675324901</string>
+
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
 
     <string-array name="Options">
         <item>New Arrival</item>
         <item>Essentials</item>
+        <item>Collections</item>
         <item>Gift Card</item>
-        <item>Smart Modules</item>
     </string-array>
-
 
 </resources>

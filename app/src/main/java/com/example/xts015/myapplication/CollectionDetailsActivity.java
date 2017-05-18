@@ -31,19 +31,20 @@ import java.util.HashMap;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class CollectionActivity extends AppCompatActivity {
+public class CollectionDetailsActivity extends AppCompatActivity {
 
-    ListView collectionList;
+    String id;
+    ListView collectionProducts;
     ProgressDialog pDialog;
     JSONParser jParser = new JSONParser();
-    String success;
     ArrayList<HashMap<String, Object>> dataList = new ArrayList<>();
     LayoutInflater inflater;
+    String banner_st, name_st, description_st;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_collection);
+        setContentView(R.layout.activity_collection_details);
 
         //Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_nologo);
@@ -57,27 +58,31 @@ public class CollectionActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(CollectionActivity.this, HomeActivity.class);
+                Intent i = new Intent(CollectionDetailsActivity.this, CollectionActivity.class);
                 startActivity(i);
             }
         });
 
-        //Initialise
-        collectionList = (ListView) findViewById(R.id.collection_item_list);
+        //Get Intent
+        Intent i = getIntent();
+        id = i.getStringExtra("Id");
 
-        String url = "http://shop.irinerose.com/api/collections/all";
-        new GetCollections().execute(url);
+        //Initialise
+        collectionProducts = (ListView) findViewById(R.id.collections_products);
+
+        String url = "http://shop.irinerose.com/api/collections/" + id;
+        new GetCollectionProducts().execute(url);
 
     }
 
-    private class GetCollections extends AsyncTask<String, Void, Void> {
+    private class GetCollectionProducts extends AsyncTask<String, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
             //Showing progress dialog
-            pDialog = new ProgressDialog(CollectionActivity.this);
+            pDialog = new ProgressDialog(CollectionDetailsActivity.this);
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
@@ -93,25 +98,36 @@ public class CollectionActivity extends AppCompatActivity {
             if (json != null) {
                 try {
 
-                    success = json.getString("success");
+                    String success = json.getString("success");
 
                     if (success.equals("true")) {
 
-                        JSONArray productDetails = json.getJSONArray("data");
-                        for (int j = 0; j < productDetails.length(); j++) {
-                            JSONObject productObj = productDetails.getJSONObject(j);
+                        JSONObject productDetails = json.getJSONObject("data");
 
-                            String id = productObj.getString("id");
-                            String name = productObj.getString("name");
-                            String description = productObj.getString("description");
-                            String banner = productObj.getString("banner");
+                        String id = productDetails.getString("id");
+                        name_st = productDetails.getString("name");
+                        description_st = productDetails.getString("description");
+                        banner_st = productDetails.getString("banner");
+
+                        JSONArray collectionProducts = productDetails.getJSONArray("products");
+                        for (int i = 0; i < collectionProducts.length(); i++) {
+                            JSONObject collectionObj = collectionProducts.getJSONObject(i);
+
+                            String id_c = collectionObj.getString("id");
+                            String name_c = collectionObj.getString("name");
+                            String description_c = collectionObj.getString("description");
+                            String thumb_c = collectionObj.getString("thumb");
+                            String price_c = collectionObj.getString("price");
+                            String availability_c = collectionObj.getString("availibility");
 
                             // adding each child node to HashMap key => value
                             HashMap<String, Object> productMap = new HashMap<String, Object>();
-                            productMap.put("Id", id);
-                            productMap.put("Name", name);
-                            productMap.put("Description", description);
-                            productMap.put("Banner", banner);
+                            productMap.put("Id", id_c);
+                            productMap.put("Name", name_c);
+                            productMap.put("Description", description_c);
+                            productMap.put("Thumb", thumb_c);
+                            productMap.put("Price", price_c);
+                            productMap.put("Availability", availability_c);
                             dataList.add(productMap);
 
                         }
@@ -120,7 +136,7 @@ public class CollectionActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             } else {
-                Toast.makeText(CollectionActivity.this, "Nothing more to show", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CollectionDetailsActivity.this, "Nothing more to show", Toast.LENGTH_SHORT).show();
             }
             return null;
         }
@@ -133,8 +149,11 @@ public class CollectionActivity extends AppCompatActivity {
             if (pDialog.isShowing())
                 pDialog.dismiss();
 
-            CustomAdapter adapter = new CustomAdapter(CollectionActivity.this, R.layout.collection_item, dataList);
-            collectionList.setAdapter(adapter);
+            CustomAdapter adapter = new CustomAdapter(CollectionDetailsActivity.this, R.layout.collection_product_item, dataList);
+            collectionProducts.addHeaderView(AddHeader(CollectionDetailsActivity.this));
+            collectionProducts.setDivider(CollectionDetailsActivity.this.getResources().getDrawable(R.drawable.transperent_color));
+            collectionProducts.setDividerHeight(20);
+            collectionProducts.setAdapter(adapter);
         }
     }
 
@@ -149,11 +168,11 @@ public class CollectionActivity extends AppCompatActivity {
         //class for caching the views in a row
         private class ViewHolder {
 
-            ImageView banner;
+            ImageView thumbnail;
             TextView view_id;
             TextView view_name;
             TextView view_description;
-            Button discoverButton;
+            Button shopButton;
         }
 
         //Initialise
@@ -165,15 +184,15 @@ public class CollectionActivity extends AppCompatActivity {
             if (convertView == null) {
 
                 //inflate the custom layout
-                convertView = inflater.from(parent.getContext()).inflate(R.layout.collection_item, parent, false);
+                convertView = inflater.from(parent.getContext()).inflate(R.layout.collection_product_item, parent, false);
                 viewHolder = new ViewHolder();
 
                 //cache the views
                 viewHolder.view_id = (TextView) convertView.findViewById(R.id.item_id);
                 viewHolder.view_name = (TextView) convertView.findViewById(R.id.item_name);
                 viewHolder.view_description = (TextView) convertView.findViewById(R.id.item_description);
-                viewHolder.banner = (ImageView) convertView.findViewById(R.id.banner_image);
-                viewHolder.discoverButton = (Button) convertView.findViewById(R.id.discover_button);
+                viewHolder.thumbnail = (ImageView) convertView.findViewById(R.id.banner_image);
+                viewHolder.shopButton = (Button) convertView.findViewById(R.id.shop_button);
 
                 //link the cached views to the convertview
                 convertView.setTag(viewHolder);
@@ -188,26 +207,45 @@ public class CollectionActivity extends AppCompatActivity {
             viewHolder.view_description.setText(dataList.get(position).get("Description").toString());
 
             //Load Thumbnail
-            Picasso.with(CollectionActivity.this)
-                    .load(dataList.get(position).get("Banner").toString())
-                    .into(viewHolder.banner);
+            Picasso.with(CollectionDetailsActivity.this)
+                    .load(dataList.get(position).get("Thumb").toString())
+                    .into(viewHolder.thumbnail);
 
             //Button onClick
-            viewHolder.discoverButton.setOnClickListener(new View.OnClickListener() {
+            viewHolder.shopButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                     LinearLayout rl = (LinearLayout) v.getParent();
-                    TextView tv = (TextView)rl.findViewById(R.id.item_id);
+                    TextView tv = (TextView) rl.findViewById(R.id.item_id);
                     String text = tv.getText().toString();
-                    Intent i = new Intent(CollectionActivity.this, CollectionDetailsActivity.class);
-                    i.putExtra("Id", text);
+                    Intent i = new Intent(CollectionDetailsActivity.this, ProductActivity.class);
+                    i.putExtra("Product Id", text);
                     startActivity(i);
                 }
             });
 
             return convertView;
         }
+    }
+
+    public View AddHeader(Context c) {
+
+        View v = View.inflate(c, R.layout.list_header, null);
+
+        TextView name = (TextView) v.findViewById(R.id.item_name);
+        ImageView banner = (ImageView) v.findViewById(R.id.banner);
+        TextView description = (TextView) v.findViewById(R.id.item_description);
+
+        name.setText(name_st);
+        description.setText(description_st);
+
+        //Load Banner
+        Picasso.with(CollectionDetailsActivity.this)
+                .load(banner_st)
+                .into(banner);
+
+        return v;
     }
 
     @Override

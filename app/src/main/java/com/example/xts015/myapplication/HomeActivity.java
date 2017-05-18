@@ -7,14 +7,22 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
@@ -71,6 +79,8 @@ public class HomeActivity extends AppCompatActivity {
     LinearLayout dotsLayout, shop_footer;
     TextView shopLabel, appLabel, homeShopLabel, hybridLabel;
     View line;
+    private DrawerLayout drawerLayout;
+    Toolbar toolbar;
 
     JSONParser jParser = new JSONParser();
 
@@ -95,81 +105,13 @@ public class HomeActivity extends AppCompatActivity {
         homeShopLabel = (TextView) findViewById(R.id.label_shops_home);
 
         //Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Title");
 
-        //Add header to navigation drawer
-        AccountHeader headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withTextColor(Color.BLACK)
-                .withHeightPx(20)
-                .withSelectionListEnabledForSingleProfile(false)
-                .withHeaderBackground(R.drawable.header_white)
-                .addProfiles(
-                        new ProfileDrawerItem().withName("Mridul S Kumar").withIcon(getResources().getDrawable(R.drawable.profile))
-                ).build();
-
-        //Drawer
-        result = new DrawerBuilder()
-                .withActivity(this)
-//                .withAccountHeader(headerResult)
-                .withSelectedItem(-1)
-                .withSliderBackgroundColorRes(R.color.white)
-                .withToolbar(toolbar)
-                .withStickyHeader(R.layout.nav_header)
-                .withTranslucentStatusBar(true)
-                .withDisplayBelowStatusBar(true)
-                .addDrawerItems(
-                        new SecondaryDrawerItem().withName("New Arrival").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Collection").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Smart Modules").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Gift Cards").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Look Book").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Sale").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Cart").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("My Account").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font).withIdentifier(7),
-                        new DividerDrawerItem(),
-                        new SecondaryDrawerItem().withName("Settings").withSelectable(false).withTextColorRes(R.color.text_color).withTypeface(font)
-
-                ).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-
-                        if (drawerItem != null) {
-                            if (drawerItem.getIdentifier() == 1) {
-
-                                //Clicked About
-
-                            } else if (drawerItem.getIdentifier() == 2) {
-
-                                //Clicked LogOut
-
-                            } else if (drawerItem.getIdentifier() == 7) {
-
-                                Intent i = new Intent(HomeActivity.this, LoginActivity.class);
-                                startActivity(i);
-                            }
-                        }
-                        return false;
-                    }
-                })
-                .build();
-
-        //Add ToggleButton to ToolBar
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        result.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
-
+        initNavigationDrawer();
 
         new GetImages().execute();
-
 
         pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -203,7 +145,7 @@ public class HomeActivity extends AppCompatActivity {
                     homeShopLabel.setVisibility(View.GONE);
 
                     hybridLabel.setVisibility(View.VISIBLE);
-                    line.setVisibility(View.VISIBLE);
+//                    line.setVisibility(View.VISIBLE);
                     dotsLayout.setGravity(Gravity.LEFT);
 //                    shop_footer.setVisibility(View.VISIBLE);
                     shopLabel.setVisibility(View.VISIBLE);
@@ -317,15 +259,82 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress ipAddr = InetAddress.getByName("google.com"); //You can replace it with your name
-            return !ipAddr.equals("");
+    public void initNavigationDrawer() {
 
-        } catch (Exception e) {
-            return false;
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        Menu m = navigationView.getMenu();
+        for (int i = 0; i < m.size(); i++) {
+            MenuItem mi = m.getItem(i);
+
+            //for aapplying a font to subMenu ...
+            SubMenu subMenu = mi.getSubMenu();
+            if (subMenu != null && subMenu.size() > 0) {
+                for (int j = 0; j < subMenu.size(); j++) {
+                    MenuItem subMenuItem = subMenu.getItem(j);
+                    applyFontToMenuItem(subMenuItem);
+                }
+            }
+
+            //the method we have create in activity
+            applyFontToMenuItem(mi);
         }
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+                int id = menuItem.getItemId();
+
+                switch (id) {
+                    case R.id.new_arrival:
+                        Intent newArrivalIntent = new Intent(HomeActivity.this, NewArrivalActivity.class);
+                        newArrivalIntent.putExtra("Source", "New Arrival");
+                        startActivity(newArrivalIntent);
+                        break;
+                    case R.id.collection:
+                        Intent collectionIntent = new Intent(HomeActivity.this, CollectionActivity.class);
+                        startActivity(collectionIntent);
+                        break;
+                    case R.id.account:
+                        Intent accountIntent = new Intent(HomeActivity.this, LoginActivity.class);
+                        startActivity(accountIntent);
+
+                }
+                return true;
+            }
+        });
+        View header = navigationView.getHeaderView(0);
+        TextView signIn = (TextView) header.findViewById(R.id.signin_view);
+        signIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(HomeActivity.this, LoginActivity.class);
+                startActivity(i);
+            }
+        });
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+
+            @Override
+            public void onDrawerClosed(View v) {
+                super.onDrawerClosed(v);
+            }
+
+            @Override
+            public void onDrawerOpened(View v) {
+                super.onDrawerOpened(v);
+            }
+        };
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+    }
+
+    private void applyFontToMenuItem(MenuItem mi) {
+        Typeface font = Typeface.createFromAsset(HomeActivity.this.getAssets(), getString(R.string.font));
+        SpannableString mNewTitle = new SpannableString(mi.getTitle());
+        mNewTitle.setSpan(new CustomTypefaceSpan("", font), 0, mNewTitle.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        mi.setTitle(mNewTitle);
     }
 
     @Override

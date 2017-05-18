@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/activity_product"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:id="@+id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:src="@drawable/profile" />
+
+    <LinearLayout
+        android:id="@+id/first_layout"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/banner"
+        android:layout_height="wrap_content"
+        android:background="@color/md_grey_200"
+        android:layout_gravity="bottom"
+        android:gravity="center_horizontal"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp"
+        android:orientation="vertical">
+
+        <TextView
+            fontPath="@string/font"
+            android:id="@+id/item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAllCaps="true"
+            android:textColor="@color/text_color"
+            android:layout_marginBottom="5dp"
+            android:text="Name"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+        <TextView
+            fontPath="@string/font"
+            android:id="@+id/item_description"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:textColor="@color/text_color"
+            android:layout_height="wrap_content"
+            android:text="Description"/>
+
+    </LinearLayout>
+</RelativeLayout>

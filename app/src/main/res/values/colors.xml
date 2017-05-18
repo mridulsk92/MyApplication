@@ -8,4 +8,5 @@
     <color name="white">#ffffff</color>
     <color name="hamburgerIconColor">#FFFFFF</color>
     <color name="gray">#C6C6C6</color>
+    <drawable name="transperent_color">#00000000</drawable>
 </resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group >
+        <item
+            android:id="@+id/new_arrival"
+            android:title="New Arrival" />
+        <item
+            android:id="@+id/collection"
+            android:title="Collection" />
+        <item
+            android:id="@+id/smart_modules"
+            android:title="Smart Modules" />
+        <item
+            android:id="@+id/gift_cards"
+            android:title="Gift Cards" />
+        <item
+            android:id="@+id/look_book"
+            android:title="Look Book" />
+        <item
+            android:id="@+id/sale"
+            android:title="Sale" />
+        <item
+            android:id="@+id/cart"
+            android:title="Cart" />
+        <item
+            android:id="@+id/account"
+            android:title="My Account" />
+        <item
+            android:id="@+id/settings"
+            android:title="Settings" />
+    </group>
+</menu>

@@ -75,6 +75,11 @@ public class NewArrivalActivity extends AppCompatActivity {
     int myLastVisiblePos;
     LinearLayout button_layout;
 
+    ArrayList<HashMap<String, Object>> dataListStrikes = new ArrayList<>();
+    ArrayList<HashMap<String, Object>> moreDataListStrikes = new ArrayList<>();
+    String strike;
+    PreferencesHelper pref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +89,7 @@ public class NewArrivalActivity extends AppCompatActivity {
         font = Typeface.createFromAsset(NewArrivalActivity.this.getAssets(), getString(R.string.font));
         font_bold = Typeface.createFromAsset(NewArrivalActivity.this.getAssets(), getString(R.string.font_bold));
 
+        pref = new PreferencesHelper(NewArrivalActivity.this);
         Toolbar toolbar_nologo = (Toolbar) findViewById(R.id.toolbar_nologo);
         viewSwitch = (ImageButton) findViewById(R.id.button_switch);
         sort = (Button) findViewById(R.id.button_sort);
@@ -286,7 +292,8 @@ public class NewArrivalActivity extends AppCompatActivity {
 
             String url_final = params[0];
             Log.d("Url Final", url_final);
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final);
+            String token = pref.GetPreferences("Token");
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {
@@ -308,6 +315,12 @@ public class NewArrivalActivity extends AppCompatActivity {
                             int availability = productObj.getInt("availibility");
                             String thumbnail = productObj.getString("thumb");
 
+                            if (offer.equals("0")) {
+                                strike = "No";
+                            } else {
+                                strike = "Yes";
+                            }
+
                             switch (availability) {
                                 case 0:
                                     status = "Coming Soon";
@@ -323,6 +336,11 @@ public class NewArrivalActivity extends AppCompatActivity {
                                     break;
 
                             }
+
+                            //add Offer
+                            HashMap<String, Object> strikeMap = new HashMap<String, Object>();
+                            strikeMap.put("Strike", strike);
+                            dataListStrikes.add(strikeMap);
 
                             // adding each child node to HashMap key => value
                             HashMap<String, Object> productMap = new HashMap<String, Object>();
@@ -376,7 +394,8 @@ public class NewArrivalActivity extends AppCompatActivity {
 
             String url_final = params[0];
             Log.d("Url Final", url_final);
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final);
+            String token = pref.GetPreferences("Token");
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {
@@ -397,6 +416,12 @@ public class NewArrivalActivity extends AppCompatActivity {
                             int availability = productObj.getInt("availibility");
                             String thumbnail = productObj.getString("thumb");
 
+                            if (offer.equals("0")) {
+                               strike = "No";
+                            } else {
+                                strike = "Yes";
+                            }
+
                             switch (availability) {
                                 case 0:
                                     status = "Coming Soon";
@@ -410,8 +435,12 @@ public class NewArrivalActivity extends AppCompatActivity {
                                 case 3:
                                     status = "Out of Stock";
                                     break;
-
                             }
+
+                            //add Offer
+                            HashMap<String, Object> strikeMap = new HashMap<String, Object>();
+                            strikeMap.put("Strike", strike);
+                            moreDataListStrikes.add(strikeMap);
 
                             // adding each child node to HashMap key => value
                             HashMap<String, Object> productMap = new HashMap<String, Object>();
@@ -444,6 +473,8 @@ public class NewArrivalActivity extends AppCompatActivity {
                 progressLayout.setVisibility(View.GONE);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             }
+
+            dataListStrikes.addAll(moreDataListStrikes);
 
             adapter.addAll(moreDataList);
             adapter.notifyDataSetChanged();
@@ -510,18 +541,17 @@ public class NewArrivalActivity extends AppCompatActivity {
             viewHolder.view_subprice.setTypeface(font_bold);
 
             // Offerview
-//            if (loadMore == "false") {
-//                if (dataList.get(position).get("Offer").equals("0")) {
-//                    viewHolder.view_price.setVisibility(View.GONE);
-//                } else {
-//                    viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//                }
-//            } else {
-//                if (moreDataList.get(position).get("Offer").equals("0")) {
-//                    viewHolder.view_price.setVisibility(View.GONE);
-//                } else {
-//                    viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-//                }
+//            if(viewHolder.view_subprice.getText().equals((viewHolder.view_price.getText()))){
+//                viewHolder.view_price.setVisibility(View.GONE);
+//            }else{
+//                viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//                viewHolder.view_price.setVisibility(View.VISIBLE);
+//            }
+//            if(dataListStrikes.get(position).get("Strike").equals("Yes")){
+//                viewHolder.view_subprice.setPaintFlags(viewHolder.view_price.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+//                viewHolder.view_price.setVisibility(View.VISIBLE);
+//            }else{
+//                viewHolder.view_price.setVisibility(View.GONE);
 //            }
 
             //Load Thumbnail

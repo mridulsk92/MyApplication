@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,29 +17,18 @@
             android:id="@+id/include"
             layout="@layout/toolbar_nologo" />
 
-        <com.daimajia.slider.library.SliderLayout
-            android:id="@+id/slider"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
+        <ImageView
+            android:id="@+id/banner1"
             android:layout_below="@id/include"
-            android:scaleType="fitXY"
-            app:indicator_visibility="visible" />
-
-        <com.daimajia.slider.library.Indicators.PagerIndicator
-            android:id="@+id/slider_indicator"
             android:layout_width="match_parent"
-            android:layout_below="@+id/slider"
-            android:gravity="center"
-            android:layout_margin="5dp"
-            app:selected_color="#4f4f4f"
-            app:unselected_color="#c0c0c0"
-            android:layout_height="wrap_content"/>
+            android:scaleType="fitXY"
+            android:layout_height="200dp" />
 
         <RelativeLayout
             android:id="@+id/product_details_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/slider_indicator"
+            android:layout_below="@+id/banner1"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginTop="7dp">
@@ -115,11 +105,31 @@
                 android:textColor="@color/text_color" />
         </RelativeLayout>
 
+        <com.daimajia.slider.library.SliderLayout
+            android:id="@+id/slider"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_below="@id/product_details_view"
+            android:scaleType="centerInside"
+            app:indicator_visibility="visible" />
+
+        <com.daimajia.slider.library.Indicators.PagerIndicator
+            android:id="@+id/slider_indicator"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/slider"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            app:selected_color="#4f4f4f"
+            app:unselected_color="#c0c0c0"
+            android:layout_height="wrap_content"/>
+
+
         <LinearLayout
             android:id="@+id/metal_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/product_details_view"
+            android:layout_below="@+id/buttons_view"
             android:gravity="center"
             android:orientation="horizontal"
             android:padding="10dp">
@@ -177,7 +187,7 @@
             android:id="@+id/buttons_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/metal_view"
+            android:layout_below="@+id/slider_indicator"
             android:orientation="vertical">
 
             <TextView
@@ -206,7 +216,7 @@
                 android:textColor="@color/md_white_1000" />
 
             <Button
-                android:id="@+id/button_addtobag"
+                android:id="@+id/button_addtowishList"
                 fontPath="@string/font_bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -220,15 +230,16 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/buttons_view"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
+            android:layout_below="@+id/metal_view"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/materials_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center_horizontal"
                 android:layout_marginTop="5dp"
                 android:orientation="vertical"
                 android:padding="5dp">
@@ -246,6 +257,7 @@
                     fontPath="@string/font"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:padding="2dp"
                     android:text="Pearl, Pink Tourmaline. Made in gold vermeil: a thick 18k gold layer on sterling silver."
                     android:textColor="@color/text_color" />
@@ -255,6 +267,10 @@
                 android:id="@+id/dimensions_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp"
+                android:gravity="center_horizontal"
                 android:layout_below="@+id/materials_layout"
                 android:orientation="vertical"
                 android:padding="5dp">
@@ -272,16 +288,26 @@
                     fontPath="@string/font"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:padding="2dp"
                     android:text="57mm/2.2"
                     android:textColor="@color/text_color" />
             </LinearLayout>
 
+            <ImageView
+                android:id="@+id/banner2"
+                android:layout_width="match_parent"
+                android:scaleType="fitXY"
+                android:layout_below="@+id/dimensions_layout"
+                android:layout_height="200dp" />
+
             <LinearLayout
                 android:id="@+id/recommend_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/dimensions_layout"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_below="@+id/banner2"
                 android:orientation="vertical"
                 android:padding="10dp">
 

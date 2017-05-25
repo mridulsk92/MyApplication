@@ -14,9 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -27,6 +33,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -42,24 +49,39 @@ public class LoginActivity extends AppCompatActivity {
     TextView forgotView, signupView;
     private LoginButton loginButton;
     private CallbackManager callbackManager;
+    String source;
+    PreferencesHelper pref;
+    String success, message, coupSuccess, coupon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Get Intent
+        Intent i = getIntent();
+        source = i.getStringExtra("From");
+
         //Initialise FB
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
+        facebookSDKInitialize();
 
         //Set Content View
         setContentView(R.layout.activity_login);
 
-        loginButton = (LoginButton)findViewById(R.id.login_button);
+        //Initialise
+        pref = new PreferencesHelper(LoginActivity.this);
+        loginButton = (LoginButton) findViewById(R.id.login_button);
         signIn = (Button) findViewById(R.id.signin_btn);
         emailView = (EditText) findViewById(R.id.email_text);
         passwordView = (EditText) findViewById(R.id.password_txt);
         forgotView = (TextView) findViewById(R.id.forgot_password_txt);
         signupView = (TextView) findViewById(R.id.signup_txt);
+
+        //Save Source
+        pref.SavePreferences("Source", source);
+
+        //facebook login button add permissions
+//        loginButton.setReadPermissions(Arrays.asList("public_profile"));
+//        getLoginDetails(loginButton);
 
         //Sign In button click
         signIn.setOnClickListener(new View.OnClickListener() {
@@ -70,23 +92,90 @@ public class LoginActivity extends AppCompatActivity {
                 password_st = passwordView.getText().toString();
 //                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
 //                startActivity(i);
-                new PostAttachment().execute();
+                new PostLogin().execute();
             }
         });
 
+        //SignUp button Click
+        signupView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(i);
+            }
+        });
     }
 
-    private class PostAttachment extends AsyncTask<Object, Object, String> {
+    protected void getLoginDetails(LoginButton login_button) {
+        // Callback registration
+        login_button.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult login_result) {
+
+                // App code
+                GraphRequest request = GraphRequest.newMeRequest(
+                        login_result.getAccessToken(),
+                        new GraphRequest.GraphJSONObjectCallback() {
+                            @Override
+                            public void onCompleted(JSONObject object, GraphResponse response) {
+                                Log.v("LoginActivity", response.toString());
+
+                                // Application code
+                                try {
+                                    String email = object.getString("email");
+                                    String name = object.getString("name");
+                                    String id = object.getString("id");
+
+                                    Log.d("DATAAA", email + name + id);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields", "id, first_name, email");
+                request.setParameters(parameters);
+                request.executeAsync();
+            }
+
+            @Override
+            public void onCancel() {
+                // code for cancellation
+                System.out.println("onCancel");
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                //  code to handle error
+                System.out.println("onError");
+                Log.v("LoginActivity", exception.getCause().toString());
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+        Log.e("data", data.toString());
+    }
+
+    protected void facebookSDKInitialize() {
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
+    }
+
+    private class PostLogin extends AsyncTask<Object, Object, String> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
-//            // Showing progress dialog
-//            pDialog = new ProgressDialog(LoginActivity.this);
-//            pDialog.setMessage("Please Wait");
-//            pDialog.setCancelable(false);
-//            pDialog.show();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(LoginActivity.this);
+            pDialog.setMessage("Please Wait");
+            pDialog.setCancelable(false);
+            pDialog.show();
         }
 
         @Override
@@ -144,8 +233,70 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+            if (pDialog.isShowing()) {
+                pDialog.dismiss();
+            }
+
             Log.d("Test Login", result);
+
+            if (result != null) {
+                try {
+                    JSONObject obj = new JSONObject(result);
+                    success = obj.getString("success");
+
+                    if (success.equals("true")) {
+
+                        //Save token and success value
+                        String token = obj.getString("token");
+                        pref.SavePreferences("Login", success);
+                        pref.SavePreferences("Token", token);
+
+                        //Get Message
+                        message = obj.getString("message");
+
+                        //Get Coupon
+//                        JSONObject couponObj = obj.getJSONObject("coupon");
+//                        coupSuccess = couponObj.getString("success");
+//                        coupon = couponObj.getString("coupon");
+
+                        //Get and Save User Details
+                        JSONObject userObj = obj.getJSONObject("data");
+//                        String id = userObj.getString("id");
+                        String name = userObj.getString("name");
+                        String email = userObj.getString("email");
+//                        String currency = userObj.getString("currency");
+                        pref.SavePreferences("UserName", name);
+//                        pref.SavePreferences("UserId", id);
+                        pref.SavePreferences("UserEmail", email);
+//                        pref.SavePreferences("UserCurrency", currency);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (success.equals("true")) {
+
+                if(source.equals("HomeActivity")){
+                    Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+                    startActivity(i);
+                }else{
+                    String product_id = pref.GetPreferences("ProductId");
+                    Intent i = new Intent(LoginActivity.this, ProductActivity.class);
+                    i.putExtra("Product Id", product_id);
+                    startActivity(i);
+                }
+
+            } else {
+                try {
+                    JSONObject logObj = new JSONObject(result);
+                    String log = logObj.getString("log");
+                    Toast.makeText(LoginActivity.this, log, Toast.LENGTH_SHORT).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -180,8 +331,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        super.finish();
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(source.equals("HomeActivity")){
+            Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(i);
+        }else{
+            String product_id = pref.GetPreferences("ProductId");
+            Intent i = new Intent(LoginActivity.this, ProductActivity.class);
+            i.putExtra("Product Id", product_id);
+            startActivity(i);
+        }
     }
+
+    //    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        super.finish();
+//    }
 }

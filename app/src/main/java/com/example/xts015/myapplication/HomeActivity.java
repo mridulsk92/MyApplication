@@ -1,6 +1,8 @@
 package com.example.xts015.myapplication;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -14,6 +16,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
@@ -74,15 +77,20 @@ public class HomeActivity extends AppCompatActivity {
     ArrayList<String> shopImages = new ArrayList<String>();
 
     ViewPager pager;
-    Bundle homeData, shopData;
+    Bundle homeData, shopData, appData;
     TabLayout tabLayout;
     LinearLayout dotsLayout, shop_footer;
-    TextView shopLabel, appLabel, homeShopLabel, hybridLabel;
+    TextView shopLabel, appLabel, homeShopLabel, hybridLabel, connectLabel;
     View line;
     private DrawerLayout drawerLayout;
     Toolbar toolbar;
+    String deviceName, deviceAddress, deviceFound = "No";
 
     JSONParser jParser = new JSONParser();
+    PreferencesHelper pref;
+    String isLogged;
+    ProgressDialog pDialog;
+    String success_logout, bannerApps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +99,11 @@ public class HomeActivity extends AppCompatActivity {
 
         //Initialise
         Typeface font = Typeface.createFromAsset(HomeActivity.this.getAssets(), getString(R.string.font_bold));
+        pref = new PreferencesHelper(HomeActivity.this);
         textList = new ArrayList<>();
         homeData = new Bundle();
         shopData = new Bundle();
+        appData = new Bundle();
         hybridLabel = (TextView) findViewById(R.id.hybrid_view);
         line = (View) findViewById(R.id.vertical_line);
         pager = (ViewPager) findViewById(R.id.viewPager);
@@ -103,15 +113,32 @@ public class HomeActivity extends AppCompatActivity {
         shopLabel = (TextView) findViewById(R.id.shop_label);
         appLabel = (TextView) findViewById(R.id.label_apps);
         homeShopLabel = (TextView) findViewById(R.id.label_shops_home);
+        connectLabel = (TextView) findViewById(R.id.connect_view);
 
         //Toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Title");
 
+        //Check If Logged In
+        isLogged = pref.GetPreferences("Login");
+
+        //Get Intent
+        Intent i = getIntent();
+        deviceFound = i.getStringExtra("Device Found");
+        if (deviceFound != null && deviceFound.equals("Yes")) {
+            deviceName = i.getStringExtra("Device Name");
+            deviceAddress = i.getStringExtra("Device Address");
+            Toast.makeText(HomeActivity.this, deviceAddress, Toast.LENGTH_SHORT).show();
+            appData.putString("Address", deviceAddress);
+            appData.putString("Name", deviceName);
+            new GetImages().execute();
+        } else {
+            new GetImages().execute();
+        }
+
         initNavigationDrawer();
 
-        new GetImages().execute();
 
         pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -123,8 +150,9 @@ public class HomeActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
 
                 if (position == 0) {
-                    appLabel.setVisibility(View.GONE);
+                    appLabel.setVisibility(View.VISIBLE);
                     homeShopLabel.setVisibility(View.GONE);
+                    connectLabel.setVisibility(View.VISIBLE);
 
                     hybridLabel.setVisibility(View.GONE);
                     line.setVisibility(View.GONE);
@@ -137,6 +165,7 @@ public class HomeActivity extends AppCompatActivity {
 
                     hybridLabel.setVisibility(View.GONE);
                     line.setVisibility(View.GONE);
+                    connectLabel.setVisibility(View.GONE);
                     shop_footer.setVisibility(View.GONE);
                     shopLabel.setVisibility(View.GONE);
                     dotsLayout.setGravity(Gravity.CENTER);
@@ -144,6 +173,7 @@ public class HomeActivity extends AppCompatActivity {
                     appLabel.setVisibility(View.GONE);
                     homeShopLabel.setVisibility(View.GONE);
 
+                    connectLabel.setVisibility(View.GONE);
                     hybridLabel.setVisibility(View.VISIBLE);
 //                    line.setVisibility(View.VISIBLE);
                     dotsLayout.setGravity(Gravity.LEFT);
@@ -166,12 +196,14 @@ public class HomeActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
 
 
-            JSONObject json = jParser.getJSONFromUrlByGet(url);
+            String token = pref.GetPreferences("Token");
+            JSONObject json = jParser.getJSONFromUrlByGet(url, token);
             try {
 
                 if (json != null) {
-                    JSONObject shop_obj = json.getJSONObject(TAG_SHOP);
 
+                    //Shop
+                    JSONObject shop_obj = json.getJSONObject(TAG_SHOP);
                     JSONArray shopContents = shop_obj.getJSONArray(TAG_CONTENTS);
                     for (int j = 0; j < shopContents.length(); j++) {
                         JSONObject contents_obj = shopContents.getJSONObject(j);
@@ -190,8 +222,9 @@ public class HomeActivity extends AppCompatActivity {
 
                         Log.i("TAG_target", str_target);
                     }
-                    JSONObject home = json.getJSONObject(TAG_HOME);
 
+                    //Home
+                    JSONObject home = json.getJSONObject(TAG_HOME);
                     JSONArray homeContents = home.getJSONArray(TAG_HOME_OBJ_CONTENTS);
                     for (int i = 0; i < homeContents.length(); i++) {
                         JSONObject home_obj = homeContents.getJSONObject(i);
@@ -200,14 +233,13 @@ public class HomeActivity extends AppCompatActivity {
                         String img = home_data.getString(TAG_IMG);
                         bannerImages.add(i, img);
                         Log.i("Image", img);
-
-//                    String home_url = home_data.getString(TAG_HOME_OBJ_CONTENTS_OBJ_URL);
-//
-//                    Log.i("TAG_home_obj_contents_obj_url", home_url);
-//                    String str_home_obj_contents_obj_target = home_data.getString(TAG_HOME_OBJ_CONTENTS_OBJ_TARGET);
-//
-//                    Log.i("TAG_home_obj_contents_obj_target", str_home_obj_contents_obj_target);
                     }
+
+                    //Apps
+                    JSONObject apps = json.getJSONObject("apps");
+                    JSONObject appContent = apps.getJSONObject("contents");
+                    JSONObject data = appContent.getJSONObject("data");
+                    bannerApps = data.getString("banner");
                 }
             } catch (JSONException e) {
             }
@@ -221,6 +253,7 @@ public class HomeActivity extends AppCompatActivity {
 
             homeData.putStringArrayList("Banner Images", bannerImages);
             shopData.putStringArrayList("Shop Images", shopImages);
+            appData.putString("banner", bannerApps);
             pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
             pager.setCurrentItem(1);
             tabLayout.setupWithViewPager(pager);
@@ -240,7 +273,9 @@ public class HomeActivity extends AppCompatActivity {
 
             switch (position) {
                 case 0:
-                    return new AppsFragment();
+                    AppsFragment af = new AppsFragment();
+                    af.setArguments(appData);
+                    return af;
                 case 1:
                     HomeFragment hf = new HomeFragment();
                     hf.setArguments(homeData);
@@ -296,20 +331,62 @@ public class HomeActivity extends AppCompatActivity {
                         startActivity(collectionIntent);
                         break;
                     case R.id.account:
-                        Intent accountIntent = new Intent(HomeActivity.this, LoginActivity.class);
-                        startActivity(accountIntent);
 
+                        if (isLogged.equals("true")) {
+                            Toast.makeText(HomeActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Intent accountIntent = new Intent(HomeActivity.this, LoginActivity.class);
+                            accountIntent.putExtra("From", "HomeActivity");
+                            startActivity(accountIntent);
+                        }
                 }
                 return true;
             }
         });
         View header = navigationView.getHeaderView(0);
         TextView signIn = (TextView) header.findViewById(R.id.signin_view);
+        TextView nameView = (TextView) header.findViewById(R.id.textView_name);
+
+        if (pref.GetPreferences("Login").equals("true")) {
+            nameView.setText(pref.GetPreferences("UserName"));
+            signIn.setText("Log Out");
+        } else {
+            nameView.setText("I'm BAO");
+            signIn.setText("Sign In");
+        }
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(HomeActivity.this, LoginActivity.class);
-                startActivity(i);
+
+                if (pref.GetPreferences("Login").equals("true")) {
+
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(HomeActivity.this);
+                    dialog.setCancelable(false);
+                    dialog.setTitle("Confirm");
+                    dialog.setMessage("Are you sure you want to Log Out?");
+                    dialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            //Action for Yes
+                            new LogOut().execute();
+                        }
+                    }).setNegativeButton("Cancel ", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Action for "Cancel".
+                            dialog.cancel();
+                        }
+                    });
+
+                    final AlertDialog alert = dialog.create();
+                    alert.show();
+
+                } else {
+                    Intent i = new Intent(HomeActivity.this, LoginActivity.class);
+                    i.putExtra("From", "HomeActivity");
+                    startActivity(i);
+                }
+
             }
         });
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
@@ -328,6 +405,59 @@ public class HomeActivity extends AppCompatActivity {
         };
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
+    }
+
+    private class LogOut extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            // Showing progress dialog
+            pDialog = new ProgressDialog(HomeActivity.this);
+            pDialog.setMessage("Please Wait");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            String token = pref.GetPreferences("Token");
+            String url_logout = "http://shop.irinerose.com/api/user/logout";
+            JSONObject json = jParser.getJSONFromUrlByGet(url_logout, token);
+            Log.d("TEST", json.toString());
+            if (json != null) {
+                try {
+
+                    success_logout = json.getString("success");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            if (pDialog.isShowing()) {
+                pDialog.dismiss();
+            }
+
+            if (success_logout.equals("true")) {
+                pref.ClearPreferences();
+                Toast.makeText(HomeActivity.this, "You Have been Logged Out", Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(HomeActivity.this, HomeActivity.class);
+                startActivity(i);
+            } else {
+                Toast.makeText(HomeActivity.this, "Log Out Failed. Please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void applyFontToMenuItem(MenuItem mi) {

@@ -1,5 +1,6 @@
 package com.example.xts015.myapplication;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +56,6 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 public class ProductActivity extends AppCompatActivity {
 
     TextView price, product_name, description, materials, dimensions, subPrice, goldLabel, silverLabel, offer_view, noStock_view;
-    Button add_to_bag;
     private SliderLayout mSlider;
     String product_id, product_name_st, price_st, description_st;
     ProgressDialog pDialog;
@@ -66,7 +66,8 @@ public class ProductActivity extends AppCompatActivity {
 
     String url = "http://shop.irinerose.com/api/products/";
     ArrayList<String> shopImages = new ArrayList<String>();
-    Button gold, silver, addToBag;
+    ArrayList<String> bannerImages = new ArrayList<String>();
+    Button gold, silver, addToBag, addToWishList;
     String size, material, category, style, collection, subprice, type, offer;
     int availability;
     ListView similarList;
@@ -74,6 +75,10 @@ public class ProductActivity extends AppCompatActivity {
     LinearLayout metalLayout;
     Typeface font, font_bold;
     PagerIndicator pageIndicator;
+    ImageView banner1, banner2;
+    String banner1_st, banner2_st;
+    PreferencesHelper pref;
+    String isLogged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +88,7 @@ public class ProductActivity extends AppCompatActivity {
         //Initialise
         font = Typeface.createFromAsset(ProductActivity.this.getAssets(), getString(R.string.font));
         font_bold = Typeface.createFromAsset(ProductActivity.this.getAssets(), getString(R.string.font_bold));
+        pref = new PreferencesHelper(ProductActivity.this);
         metalLayout = (LinearLayout) findViewById(R.id.metal_view);
         offer_view = (TextView) findViewById(R.id.offer_text);
         price = (TextView) findViewById(R.id.text_price);
@@ -91,11 +97,12 @@ public class ProductActivity extends AppCompatActivity {
         description = (TextView) findViewById(R.id.text_description);
         materials = (TextView) findViewById(R.id.materials_view);
         dimensions = (TextView) findViewById(R.id.dimensions_view);
+        banner1 = (ImageView) findViewById(R.id.banner1);
+        banner2 = (ImageView) findViewById(R.id.banner2);
 
         mSlider = (SliderLayout) findViewById(R.id.slider);
         mSlider.stopAutoCycle();
 
-        add_to_bag = (Button) findViewById(R.id.button_addtobag);
         Toolbar toolbar_nologo = (Toolbar) findViewById(R.id.toolbar_nologo);
         gold = (Button) findViewById(R.id.gold);
         silver = (Button) findViewById(R.id.silver);
@@ -103,8 +110,12 @@ public class ProductActivity extends AppCompatActivity {
         goldLabel = (TextView) findViewById(R.id.gold_label);
         silverLabel = (TextView) findViewById(R.id.silver_label);
         addToBag = (Button) findViewById(R.id.add_to_bag);
+        addToWishList = (Button) findViewById(R.id.button_addtowishList);
         noStock_view = (TextView) findViewById(R.id.nostock_label);
         pageIndicator = (PagerIndicator) findViewById(R.id.slider_indicator);
+
+        //Check If Logged In
+        isLogged = pref.GetPreferences("Login");
 
         gold.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,9 +177,113 @@ public class ProductActivity extends AppCompatActivity {
         //Get Intent
         Intent i = getIntent();
         product_id = i.getStringExtra("Product Id");
+        pref.SavePreferences("ProductId", product_id);
 
         //Load Product Data
         new LoadProduct().execute(url + product_id);
+
+        //Add to Bag onClickListener
+        addToBag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                if (isLogged.equals("true")) {
+                    Toast.makeText(ProductActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    final Dialog dialog = new Dialog(ProductActivity.this);
+                    dialog.setContentView(R.layout.popup_layout);
+                    Button btnCancel = (Button) dialog.findViewById(R.id.button_cancel);
+                    Button btnJoin = (Button) dialog.findViewById(R.id.button_join);
+                    Button btnLogin = (Button) dialog.findViewById(R.id.button_login);
+
+                    //Cancel
+                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            dialog.dismiss();
+                        }
+                    });
+
+                    //Join
+                    btnJoin.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Intent i = new Intent(ProductActivity.this, RegisterActivity.class);
+                            i.putExtra("From", "ProductActivity");
+                            startActivity(i);
+
+                        }
+                    });
+
+                    //Log In
+                    btnLogin.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Intent i = new Intent(ProductActivity.this, LoginActivity.class);
+                            i.putExtra("From", "ProductActivity");
+                            startActivity(i);
+                        }
+                    });
+                    dialog.show();
+                }
+            }
+        });
+
+        //Add To Wishlist onClickListener
+        addToWishList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (isLogged.equals("true")) {
+                    Toast.makeText(ProductActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    final Dialog dialog = new Dialog(ProductActivity.this);
+                    dialog.setContentView(R.layout.popup_layout);
+                    Button btnCancel = (Button) dialog.findViewById(R.id.button_cancel);
+                    Button btnJoin = (Button) dialog.findViewById(R.id.button_join);
+                    Button btnLogin = (Button) dialog.findViewById(R.id.button_login);
+
+                    //Cancel
+                    btnCancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            dialog.dismiss();
+                        }
+                    });
+
+                    //Join
+                    btnJoin.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Intent i = new Intent(ProductActivity.this, RegisterActivity.class);
+                            i.putExtra("From", "ProductActivity");
+                            startActivity(i);
+
+                        }
+                    });
+
+                    //Log In
+                    btnLogin.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            Intent i = new Intent(ProductActivity.this, LoginActivity.class);
+                            i.putExtra("From", "ProductActivity");
+                            startActivity(i);
+                        }
+                    });
+                    dialog.show();
+                }
+            }
+        });
     }
 
     private class LoadProduct extends AsyncTask<String, Void, Void> {
@@ -189,7 +304,8 @@ public class ProductActivity extends AppCompatActivity {
 
             String url_final = params[0];
             Log.d("Url Final", url_final);
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final);
+            String token = pref.GetPreferences("Token");
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
             Log.d("Json", String.valueOf(json));
             try {
 
@@ -209,13 +325,20 @@ public class ProductActivity extends AppCompatActivity {
                     availability = productObj.getInt("availibility");
                     offer = productObj.getString("offer");
                     subprice = productObj.getString("subprice");
-                    type = productObj.getString("type");
+//                    type = productObj.getString("type");
 
                     JSONArray imgs = productObj.getJSONArray("images");
                     for (int i = 0; i < imgs.length(); i++) {
                         String str_imgs = imgs.getString(i);
                         Log.i("TAG_imgs", str_imgs);
                         shopImages.add(i, str_imgs);
+                    }
+
+                    JSONArray banners = productObj.getJSONArray("banner");
+                    for (int i = 0; i < banners.length(); i++) {
+                        String banner_img = banners.getString(i);
+                        Log.d("Banner", banner_img);
+                        bannerImages.add(i, banner_img);
                     }
 
                     JSONArray similar = productObj.getJSONArray("similar");
@@ -269,6 +392,18 @@ public class ProductActivity extends AppCompatActivity {
             description.setText(description_st);
             materials.setText(material);
             dimensions.setText(size);
+
+            if (bannerImages.size() != 0) {
+                //banner images
+                banner1_st = bannerImages.get(0);
+                banner2_st = bannerImages.get(1);
+                Picasso.with(ProductActivity.this)
+                        .load(banner1_st)
+                        .into(banner1);
+                Picasso.with(ProductActivity.this)
+                        .load(banner2_st)
+                        .into(banner2);
+            }
 
             //Check Offer
             if (offer.equals("0")) {

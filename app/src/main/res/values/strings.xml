@@ -8,6 +8,7 @@
     <string name="font_bold">fonts/LarkeNeue_Bold.ttf</string>
     <string name="facebook_app_id">1280315675324901</string>
 
+    <string name="popup_string">To add items to your bag and make purchase, please sign in or join Irine Rose now.</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
 

@@ -99,8 +99,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:background="@drawable/edittext_modified"
                 android:hint="Email"
+                android:background="@drawable/edittext_modified"
                 android:inputType="text"
                 android:maxLines="1"
                 android:padding="10dp"
@@ -114,7 +114,7 @@
                 android:layout_margin="5dp"
                 android:background="@drawable/edittext_modified"
                 android:hint="Password"
-                android:inputType="text"
+                android:inputType="textPassword"
                 android:maxLines="1"
                 android:padding="10dp"
                 android:textColor="@color/text_color" />

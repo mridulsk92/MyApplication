@@ -77,13 +77,14 @@ public class JSONParser {
 
     }
 
-    public JSONObject getJSONFromUrlByGet(String url) {
+    public JSONObject getJSONFromUrlByGet(String url, String token) {
 
         // Making HTTP request
         try {
             // defaultHttpClient
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpGet httpGet = new HttpGet(url);
+            httpGet.addHeader("token",token);
 
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();

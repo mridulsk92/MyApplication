@@ -47,7 +47,7 @@
             <TextView
                 fontPath="@string/font"
                 android:id="@+id/item_description"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:textColor="@color/text_color"
                 android:gravity="center"
                 android:layout_centerHorizontal="true"
@@ -63,11 +63,10 @@
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/text_color"
                 android:background="@drawable/button_bg"
-                android:padding="5dp"
+                android:paddingRight="15dp"
+                android:paddingLeft="15dp"
                 android:text="SHOP NOW"/>
 
         </LinearLayout>
-
     </LinearLayout>
-
 </LinearLayout>

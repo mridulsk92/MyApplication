@@ -39,6 +39,7 @@ public class CollectionActivity extends AppCompatActivity {
     String success;
     ArrayList<HashMap<String, Object>> dataList = new ArrayList<>();
     LayoutInflater inflater;
+    PreferencesHelper pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +65,9 @@ public class CollectionActivity extends AppCompatActivity {
 
         //Initialise
         collectionList = (ListView) findViewById(R.id.collection_item_list);
+        pref = new PreferencesHelper(CollectionActivity.this);
 
+        //Load Data
         String url = "http://shop.irinerose.com/api/collections/all";
         new GetCollections().execute(url);
 
@@ -88,7 +91,8 @@ public class CollectionActivity extends AppCompatActivity {
 
             String url_final = params[0];
             Log.d("Url Final", url_final);
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final);
+            String token = pref.GetPreferences("Token");
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {

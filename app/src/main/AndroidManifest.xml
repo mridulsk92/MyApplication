@@ -2,6 +2,35 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.xts015.myapplication">
 
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="false" />
+
+    <uses-permission
+        android:name="android.permission.WAKE_LOCK"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.SYSTEM_ALERT_WINDOW"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.SYSTEM_ALERT_WINDOW"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.GET_TASKS"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.CHANGE_WIFI_STATE"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -24,6 +53,14 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="YCAPPKEY"
+            android:value="f0b520cdb42c7103f6683977793ae81c" />
+
+        <meta-data
+            android:name="com.razorpay.ApiKey"
+            android:value="rzp_test_ChDye6K0EQoWOn"
+            />
 
         <activity
             android:name=".HomeActivity"
@@ -40,8 +77,18 @@
         <activity android:name=".CollectionActivity" />
         <activity android:name=".CollectionDetailsActivity" />
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".ScanDeviceActivity" />
-        <activity android:name=".WelcomeActivity"></activity>
+        <activity android:name=".WelcomeActivity" />
+        <activity android:name=".CartActivity" />
+        <activity android:name=".CheckoutActivity" />
+        <activity android:name=".DeviceScanActivity" />
+
+        <service
+            android:name="com.yc.peddemo.sdk.BluetoothLeService"
+            android:enabled="true" />
+        <service
+            android:name=".BluetoothService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

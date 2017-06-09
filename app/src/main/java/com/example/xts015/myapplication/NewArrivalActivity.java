@@ -117,6 +117,38 @@ public class NewArrivalActivity extends AppCompatActivity {
             }
         });
 
+        //Count Badge and Cart Button
+        TextView badge = (TextView) toolbar_nologo.findViewById(R.id.textOne);
+        ImageView cart = (ImageView) toolbar_nologo.findViewById(R.id.cart_view);
+        String isLogged = pref.GetPreferences("Login");
+        String count = pref.GetPreferences("Cart Count");
+        if (isLogged.equals("true")) {
+            if (count.equals("0")) {
+                badge.setVisibility(View.GONE);
+            } else {
+                badge.setText(count);
+            }
+            //onClick of Cart View
+            cart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(NewArrivalActivity.this, CartActivity.class);
+                    i.putExtra("Id","NewArrival");
+                    startActivity(i);
+                }
+            });
+            badge.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(NewArrivalActivity.this, CartActivity.class);
+                    i.putExtra("Id","NewArrival");
+                    startActivity(i);
+                }
+            });
+        } else {
+            badge.setVisibility(View.GONE);
+        }
+
         //Switch view button onClickListener
         clicked = true;
         viewSwitch.setImageResource(R.drawable.list_ic);
@@ -293,7 +325,7 @@ public class NewArrivalActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {
@@ -395,7 +427,7 @@ public class NewArrivalActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {
@@ -417,7 +449,7 @@ public class NewArrivalActivity extends AppCompatActivity {
                             String thumbnail = productObj.getString("thumb");
 
                             if (offer.equals("0")) {
-                               strike = "No";
+                                strike = "No";
                             } else {
                                 strike = "Yes";
                             }
@@ -572,4 +604,17 @@ public class NewArrivalActivity extends AppCompatActivity {
     protected void attachBaseContext(Context context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent i = new Intent(NewArrivalActivity.this, HomeActivity.class);
+        startActivity(i);
+    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        super.finish();
+//    }
 }

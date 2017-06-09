@@ -22,29 +22,43 @@
             android:layout_height="wrap_content"
             android:weightSum="10">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="0"
-                android:layout_height="wrap_content" />
 
             <ImageView
                 android:id="@+id/logo"
                 android:layout_width="0dp"
-                android:layout_weight="9"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_weight="8"
                 android:src="@drawable/logo" />
 
-            <ImageView
+            <RelativeLayout
+                android:layout_weight="2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_gravity="right|center"
-                android:layout_margin="10dp"
-                android:src="@drawable/bag_ic" />
+                android:gravity="end"
+                android:layout_toRightOf="@+id/title_toolbar">
 
+                <ImageView
+                    android:id="@+id/cart_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right|center"
+                    android:layout_margin="15dp"
+                    android:src="@drawable/bag_ic" />
+
+                <TextView
+                    android:id="@+id/textOne"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5"
+                    android:padding="10dp"
+                    android:textColor="#FFF"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:background="@drawable/badge_circle"/>
+
+            </RelativeLayout>
         </LinearLayout>
-
     </android.support.v7.widget.Toolbar>
 </android.support.design.widget.AppBarLayout>
 

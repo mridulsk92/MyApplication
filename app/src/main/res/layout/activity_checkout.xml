@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_checkout"
+    android:layout_width="match_parent"
+    android:background="#dcdbdb"
+    android:layout_height="match_parent"
+    tools:context="com.example.xts015.myapplication.CheckoutActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:focusableInTouchMode="true"
+        android:layout_height="wrap_content">
+
+        <include layout="@layout/toolbar_nologo"
+            android:id="@+id/include6" />
+
+        <RelativeLayout
+            android:id="@+id/bag_layout"
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:layout_marginTop="3dp"
+            android:padding="20dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/include6"
+            android:layout_alignParentStart="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/myBag_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="My Bag"/>
+
+                <TextView
+                    android:id="@+id/view_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:text="View"/>
+
+                <android.support.v4.view.ViewPager
+                    android:id="@+id/viewpager_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_below="@id/myBag_label"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="8dp"
+                    android:clipToPadding="false"
+                    android:gravity="center"
+                    android:paddingRight="190dp" />
+
+                <View
+                    android:id="@+id/horizontalLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_below="@+id/viewpager_preview"
+                    android:layout_marginRight="10dp"
+                    android:background="#D3D3D3" />
+
+                <TextView
+                    android:id="@+id/itemcount_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_below="@+id/horizontalLine"
+                    android:text="1 Item"/>
+
+                <TextView
+                    android:id="@+id/totalView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/horizontalLine"
+                    android:text="$55"/>
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/promo_layout"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/bag_layout"
+            android:background="@color/white"
+            android:padding="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/promocodeView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Promo Code"/>
+
+            <ImageButton
+                android:id="@+id/promocodeButton"
+                android:layout_width="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/right_arrow"
+                android:background="@color/white"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/address_layout"
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:layout_marginTop="5dp"
+            android:padding="20dp"
+            android:layout_below="@+id/promo_layout"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/delivery_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Delivery Address"/>
+
+            <ImageView
+                android:id="@+id/houseIcon"
+                android:layout_width="wrap_content"
+                android:layout_below="@id/delivery_label"
+                android:src="@drawable/house_ic"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/home_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/houseIcon"
+                android:layout_below="@+id/delivery_label"
+                android:text="Home Address"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/home_label"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/firstname_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="First Name"/>
+
+                    <TextView
+                        android:id="@+id/secondName_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+
+                        android:text="Lat Name"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/address1_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Address line 1"/>
+
+                <TextView
+                    android:id="@+id/address2_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Address line 2"/>
+
+                <TextView
+                    android:id="@+id/state_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="State"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/city_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="City"/>
+
+                    <TextView
+                        android:id="@+id/pincode_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Pin Code"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/country_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Country"/>
+
+                <TextView
+                    android:id="@+id/phone_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Phone"/>
+
+                <Button
+                    android:id="@+id/change_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Change"/>
+
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/deliveryoptions_layout"
+            android:layout_below="@+id/address_layout"
+            android:padding="20dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/options_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delivery Options"/>
+
+            <ListView
+                android:id="@+id/list_options"
+                android:layout_width="match_parent"
+                android:layout_below="@id/options_label"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/payment_layout"
+            android:layout_width="match_parent"
+            android:background="@color/white"
+            android:layout_marginTop="5dp"
+            android:padding="20dp"
+            android:layout_below="@+id/deliveryoptions_layout"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/payment_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="Payment"/>
+
+            <ImageView
+                android:id="@+id/billIcon"
+                android:layout_width="wrap_content"
+                android:layout_below="@id/payment_label"
+                android:src="@drawable/bill_ic"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/bill_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/billIcon"
+                android:layout_below="@+id/payment_label"
+                android:text="Billing Address"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/bill_label"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/firstname_viewB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="First Name"/>
+
+                    <TextView
+                        android:id="@+id/secondName_viewB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+
+                        android:text="Lat Name"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/address1_viewB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Address line 1"/>
+
+                <TextView
+                    android:id="@+id/address2_viewB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Address line 2"/>
+
+                <TextView
+                    android:id="@+id/state_viewB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="State"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/city_viewB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="City"/>
+
+                    <TextView
+                        android:id="@+id/pincode_viewB"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Pin Code"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/country_viewB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Country"/>
+
+                <TextView
+                    android:id="@+id/phone_viewB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Phone"/>
+
+                <Button
+                    android:id="@+id/change_buttonB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Change"/>
+
+            </LinearLayout>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/confirmation_layout"
+            android:layout_below="@id/payment_layout"
+            android:paddingLeft="20dp"
+            android:paddingTop="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="7dp"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/bag_layout"
+                android:padding="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sub Total"/>
+
+                <TextView
+                    android:id="@+id/subtotal_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$55"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/bag_layout"
+                android:padding="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delivery"/>
+
+                <TextView
+                    android:id="@+id/delivery_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FREE"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/bag_layout"
+                android:padding="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tax"/>
+
+                <TextView
+                    android:id="@+id/tax_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$5"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/bag_layout"
+                android:padding="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Discount"/>
+
+                <TextView
+                    android:id="@+id/discount_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$10"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_below="@+id/bag_layout"
+                android:padding="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total to Pay"/>
+
+                <TextView
+                    android:id="@+id/total_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$55"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
+
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/pay_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="pay Securely"/>
+
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_below="@+id/confirmation_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:gravity="center"
+            android:text="By placing your order you agree to our terms and conditions, privacy and return policies "/>
+
+
+    </RelativeLayout>
+</ScrollView>

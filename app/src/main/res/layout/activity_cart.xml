@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_cart"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context="com.example.xts015.myapplication.CartActivity">
+
+    <include layout="@layout/toolbar_nologo"
+        android:id="@+id/include5" />
+
+    <LinearLayout
+        android:weightSum="10"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/include5"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <LinearLayout
+            android:id="@+id/count_layout"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:background="#dcdbdb"
+            android:padding="10dp"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+
+            <TextView
+                fontPath="@string/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:textColor="@color/text_color"
+                android:text="Your Bag"/>
+
+            <TextView
+                fontPath="@string/font"
+                android:id="@+id/item_count"
+                android:layout_width="wrap_content"
+                android:padding="5dp"
+                android:textColor="@color/text_color"
+                android:layout_height="wrap_content"
+                android:text="(items)"/>
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/cartitem_list"
+            android:layout_width="match_parent"
+            android:layout_weight="7"
+            android:layout_margin="2dp"
+            android:layout_height="0dp" />
+
+        <RelativeLayout
+            android:id="@+id/footer"
+            android:layout_width="match_parent"
+            android:layout_weight="2"
+            android:padding="10dp"
+            android:background="#dcdbdb"
+            android:layout_height="0dp">
+
+            <RelativeLayout
+                android:id="@+id/final_amount_layout"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                android:weightSum="10"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    fontPath="@string/font"
+                    android:id="@+id/total_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:textColor="@color/text_color"
+                    android:text="Total"/>
+
+                <TextView
+                    fontPath="@string/font"
+                    android:id="@+id/delivery_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_color"
+                    android:padding="5dp"
+                    android:layout_toRightOf="@+id/total_label"
+                    android:textStyle="bold"
+                    android:text="(excluding delivery)"/>
+
+                <TextView
+                    fontPath="@string/font"
+                    android:id="@+id/total_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:padding="5dp"
+                    android:textColor="@color/text_color"
+                    android:text="$150"/>
+
+            </RelativeLayout>
+
+            <Button
+                fontPath="@string/font"
+                android:id="@+id/btn_checkout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#00c23b"
+                android:textColor="@color/text_color"
+                android:layout_below="@+id/final_amount_layout"
+                android:text="check out"/>
+
+
+        </RelativeLayout>
+
+    </LinearLayout>
+</RelativeLayout>

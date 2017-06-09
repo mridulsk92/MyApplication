@@ -1,13 +1,18 @@
 package com.example.xts015.myapplication;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceActivity;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -28,6 +33,9 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +49,19 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.yc.peddemo.sdk.BLEServiceOperate;
+import com.yc.peddemo.sdk.BluetoothLeService;
+import com.yc.peddemo.sdk.DataProcessing;
+import com.yc.peddemo.sdk.ICallback;
+import com.yc.peddemo.sdk.ICallbackStatus;
+import com.yc.peddemo.sdk.ServiceStatusCallback;
+import com.yc.peddemo.sdk.StepChangeListener;
+import com.yc.peddemo.sdk.UTESQLOperate;
+import com.yc.peddemo.sdk.WriteCommandToBLE;
+import com.yc.peddemo.utils.CalendarUtils;
+import com.yc.peddemo.utils.GlobalVariable;
+import com.yc.pedometer.info.SwimInfo;
+import com.yc.pedometer.update.Updates;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,12 +69,13 @@ import org.json.JSONObject;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements ServiceStatusCallback, ICallback {
 
     private Drawer result = null;
     public static final String url = "http://shop.irinerose.com/api/android/home";
@@ -92,6 +114,82 @@ public class HomeActivity extends AppCompatActivity {
     ProgressDialog pDialog;
     String success_logout, bannerApps;
 
+    /////////////////////////////////////////
+    private TextView connect_status, rssi_tv, tv_steps, tv_distance,
+            tv_calorie, tv_sleep, tv_deep, tv_light, tv_awake, show_result,
+            tv_rate, tv_lowest_rate, tv_verage_rate, tv_highest_rate;
+    private EditText et_height, et_weight, et_sedentary_period;
+    private Button btn_confirm, btn_sync_step, btn_sync_sleep, update_ble,
+            read_ble_version, read_ble_battery, set_ble_time,
+            bt_sedentary_open, bt_sedentary_close, btn_sync_rate,
+            btn_rate_start, btn_rate_stop, unit, push_message_content;
+    private DataProcessing mDataProcessing;
+    //    private CustomProgressDialog mProgressDialog;
+    private UTESQLOperate mySQLOperate;
+    // private PedometerUtils mPedometerUtils;
+    private WriteCommandToBLE mWriteCommand;
+    private Context mContext;
+    private SharedPreferences sp;
+    private SharedPreferences.Editor editor;
+
+    private final int UPDATE_STEP_UI_MSG = 0;
+    private final int UPDATE_SLEEP_UI_MSG = 1;
+    private final int DISCONNECT_MSG = 18;
+    private final int CONNECTED_MSG = 19;
+    private final int UPDATA_REAL_RATE_MSG = 20;
+    private final int RATE_SYNC_FINISH_MSG = 21;
+    private final int OPEN_CHANNEL_OK_MSG = 22;
+    private final int CLOSE_CHANNEL_OK_MSG = 23;
+    private final int TEST_CHANNEL_OK_MSG = 24;
+    private final int OFFLINE_SWIM_SYNC_OK_MSG = 25;
+    private final int UPDATA_REAL_BLOOD_PRESSURE_MSG = 29;
+    private final int OFFLINE_BLOOD_PRESSURE_SYNC_OK_MSG = 30;
+
+    private final long TIME_OUT = 120000;
+    private boolean isUpdateSuccess = false;
+    private int mSteps = 0;
+    private float mDistance = 0f;
+    private int mCalories = 0;
+
+    private int mlastStepValue;
+    private int stepDistance = 0;
+    private int lastStepDistance = 0;
+
+    private boolean isFirstOpenAPK = false;
+    private int currentDay = 1;
+    private int lastDay = 0;
+    private String currentDayString = "20101202";
+    private String lastDayString = "20101201";
+    private static final int NEW_DAY_MSG = 3;
+    protected static final String TAG = "MainActivity";
+    private Updates mUpdates;
+    private BLEServiceOperate mBLEServiceOperate;
+    private BluetoothLeService mBluetoothLeService;
+    // caicai add for sdk
+    public static final String EXTRAS_DEVICE_NAME = "device_name";
+    public static final String EXTRAS_DEVICE_ADDRESS = "device_address";
+    private final int CONNECTED = 1;
+    private final int CONNECTING = 2;
+    private final int DISCONNECTED = 3;
+    private int CURRENT_STATUS = DISCONNECTED;
+
+    private String mDeviceName;
+    private String mDeviceAddress;
+
+    private int tempRate = 70;
+    private int tempStatus;
+    private long mExitTime = 0;
+
+    private Button test_channel;
+    private StringBuilder resultBuilder = new StringBuilder();
+
+    private TextView swim_time, swim_stroke_count, swim_calorie, tv_low_pressure, tv_high_pressure;
+    private Button btn_sync_swim, btn_sync_pressure, btn_start_pressure, btn_stop_pressure;
+
+    private int high_pressure, low_pressure;
+    private int tempBloodPressureStatus;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +213,49 @@ public class HomeActivity extends AppCompatActivity {
         homeShopLabel = (TextView) findViewById(R.id.label_shops_home);
         connectLabel = (TextView) findViewById(R.id.connect_view);
 
+        Intent i = new Intent(HomeActivity.this, BluetoothLeService.class);
+        startService(i);
+
+        ////////////////////BLUETOOTH/////////////////////
+        mContext = getApplicationContext();
+        sp = mContext.getSharedPreferences(GlobalVariable.SettingSP, 0);
+        editor = sp.edit();
+        mySQLOperate = new UTESQLOperate(mContext);
+        mBLEServiceOperate = BLEServiceOperate.getInstance(mContext);
+        mBLEServiceOperate.setServiceStatusCallback(this);
+
+        Boolean ble_connect = sp.getBoolean(GlobalVariable.BLE_CONNECTED_SP, false);
+        Log.d("TEST CONNETION", String.valueOf(ble_connect));
+
+
+        mDataProcessing = DataProcessing.getInstance(mContext);
+        mDataProcessing.setOnStepChangeListener(mOnStepChangeListener);
+
+        mBluetoothLeService = mBLEServiceOperate.getBleService();
+        if (mBluetoothLeService != null) {
+            mBluetoothLeService.setICallback(this);
+        }
+
+        mRegisterReceiver();
+        mWriteCommand = WriteCommandToBLE.getInstance(mContext);
+        mUpdates = Updates.getInstance(mContext);
+        mUpdates.setHandler(mHandler);// 获取升级操作信息
+        mUpdates.registerBroadcastReceiver();
+        Log.d("onServerDiscorver", "MainActivity_onCreate   mUpdates  =" + mUpdates);
+        Intent intent = getIntent();
+        mDeviceName = intent.getStringExtra("Device Name");
+        mDeviceAddress = intent.getStringExtra("Device Address");
+
+//        Log.d("HomeActivity", mDeviceAddress);
+//        Toast.makeText(HomeActivity.this, "Address"+mDeviceAddress, Toast.LENGTH_SHORT).show();
+
+        mBLEServiceOperate.connect(mDeviceAddress);
+
+        CURRENT_STATUS = CONNECTING;
+        upDateTodaySwimData();
+
+        //////////////////////////////////////////////////////////////
+
         //Toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -123,19 +264,62 @@ public class HomeActivity extends AppCompatActivity {
         //Check If Logged In
         isLogged = pref.GetPreferences("Login");
 
-        //Get Intent
-        Intent i = getIntent();
-        deviceFound = i.getStringExtra("Device Found");
-        if (deviceFound != null && deviceFound.equals("Yes")) {
-            deviceName = i.getStringExtra("Device Name");
-            deviceAddress = i.getStringExtra("Device Address");
-            Toast.makeText(HomeActivity.this, deviceAddress, Toast.LENGTH_SHORT).show();
-            appData.putString("Address", deviceAddress);
-            appData.putString("Name", deviceName);
-            new GetImages().execute();
+        //Count Badge and Cart Button
+        TextView badge = (TextView) toolbar.findViewById(R.id.textOne);
+        ImageView cart = (ImageView) toolbar.findViewById(R.id.cart_view);
+        String count = pref.GetPreferences("Cart Count");
+        if (isLogged.equals("true")) {
+            if (count.equals("0")) {
+                badge.setVisibility(View.GONE);
+            } else {
+                badge.setText(count);
+            }
+            //onClick of Cart View
+            cart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(HomeActivity.this, CartActivity.class);
+                    i.putExtra("Id", "Home");
+                    startActivity(i);
+                }
+            });
+            badge.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(HomeActivity.this, CartActivity.class);
+                    i.putExtra("Id", "Home");
+                    startActivity(i);
+                }
+            });
         } else {
-            new GetImages().execute();
+            badge.setVisibility(View.GONE);
         }
+
+        //Connect onClick
+        connectLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(HomeActivity.this, DeviceScanActivity.class);
+                startActivity(i);
+            }
+        });
+
+
+//        //Get Intent
+//        Intent i = getIntent();
+//        deviceFound = i.getStringExtra("Device Found");
+//        if (deviceFound != null && deviceFound.equals("Yes")) {
+//            deviceName = i.getStringExtra("Device Name");
+//            deviceAddress = i.getStringExtra("Device Address");
+//            Toast.makeText(HomeActivity.this, deviceAddress, Toast.LENGTH_SHORT).show();
+//            appData.putString("Address", deviceAddress);
+//            appData.putString("Name", deviceName);
+//            new GetImages().execute();
+//        } else {
+//            new GetImages().execute();
+//        }
+
+        new GetImages().execute();
 
         initNavigationDrawer();
 
@@ -188,6 +372,233 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void ConnectBluetooth() {
+
+
+    }
+
+    private void mRegisterReceiver() {
+        IntentFilter mFilter = new IntentFilter();
+        mFilter.addAction(GlobalVariable.READ_BATTERY_ACTION);
+        mFilter.addAction(GlobalVariable.READ_BLE_VERSION_ACTION);
+        registerReceiver(mReceiver, mFilter);
+    }
+
+    @Override
+    protected void onResume() {
+        // TODO Auto-generated method stub
+        super.onResume();
+        boolean ble_connecte = sp.getBoolean(GlobalVariable.BLE_CONNECTED_SP,
+                false);
+        if (ble_connecte) {
+            Toast.makeText(HomeActivity.this, "Connected", Toast.LENGTH_SHORT).show();
+//            connect_status.setText("COnnected");
+        } else {
+            Toast.makeText(HomeActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+//            connect_status.setText("Disconnected");
+        }
+        JudgeNewDayWhenResume();
+
+    }
+
+    private void JudgeNewDayWhenResume() {
+        isFirstOpenAPK = sp.getBoolean(GlobalVariable.FIRST_OPEN_APK, true);
+        editor.putBoolean(GlobalVariable.FIRST_OPEN_APK, false);
+        editor.commit();
+        lastDay = sp.getInt(GlobalVariable.LAST_DAY_NUMBER_SP, 0);
+        lastDayString = sp.getString(GlobalVariable.LAST_DAY_CALLENDAR_SP,
+                "20101201");
+        Calendar c = Calendar.getInstance();
+        currentDay = c.get(Calendar.DAY_OF_YEAR);
+        currentDayString = CalendarUtils.getCalendar(0);
+
+        if (isFirstOpenAPK) {
+            lastDay = currentDay;
+            lastDayString = currentDayString;
+            editor = sp.edit();
+            editor.putInt(GlobalVariable.LAST_DAY_NUMBER_SP, lastDay);
+            editor.putString(GlobalVariable.LAST_DAY_CALLENDAR_SP,
+                    lastDayString);
+            editor.commit();
+        } else {
+
+            if (currentDay != lastDay) {
+                if ((lastDay + 1) == currentDay || currentDay == 1) { // 连续的日期
+                    mHandler.sendEmptyMessage(NEW_DAY_MSG);
+                } else {
+                    mySQLOperate.insertLastDayStepSQL(lastDayString);
+                    mySQLOperate.updateSleepSQL();
+//                    resetValues();
+                }
+                lastDay = currentDay;
+                lastDayString = currentDayString;
+                editor.putInt(GlobalVariable.LAST_DAY_NUMBER_SP, lastDay);
+                editor.putString(GlobalVariable.LAST_DAY_CALLENDAR_SP,
+                        lastDayString);
+                editor.commit();
+            } else {
+                Log.d("b1offline", "currentDay == lastDay");
+            }
+        }
+
+    }
+
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(GlobalVariable.READ_BLE_VERSION_ACTION)) {
+                String version = intent
+                        .getStringExtra(GlobalVariable.INTENT_BLE_VERSION_EXTRA);
+                if (sp.getBoolean(BluetoothLeService.IS_RK_PLATFORM_SP, false)) {
+                    show_result.setText("version=" + version + "," + sp.getString(GlobalVariable.PATH_LOCAL_VERSION_NAME_SP, ""));
+                } else {
+                    show_result.setText("version=" + version);
+                }
+
+            } else if (action.equals(GlobalVariable.READ_BATTERY_ACTION)) {
+                int battery = intent.getIntExtra(
+                        GlobalVariable.INTENT_BLE_BATTERY_EXTRA, -1);
+                show_result.setText("battery=" + battery);
+
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("onServerDiscorver", "MainActivity_onDestroy");
+        GlobalVariable.BLE_UPDATE = false;
+        mUpdates.unRegisterBroadcastReceiver();
+        try {
+            unregisterReceiver(mReceiver);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+//        if (mProgressDialog != null) {
+//            mProgressDialog.dismiss();
+//            mProgressDialog = null;
+//        }
+//        if (mDialogRunnable != null)
+//            mHandler.removeCallbacks(mDialogRunnable);
+
+        mBLEServiceOperate.disConnect();
+    }
+
+    @Override
+    public void OnResult(boolean result, int status) {
+        // TODO Auto-generated method stub
+        Log.i(TAG, "result=" + result + ",status=" + status);
+        if (status == ICallbackStatus.OFFLINE_STEP_SYNC_OK) {
+            // step snyc complete
+        } else if (status == ICallbackStatus.OFFLINE_SLEEP_SYNC_OK) {
+            // sleep snyc complete
+        } else if (status == ICallbackStatus.SYNC_TIME_OK) {// after set time
+            // finish, then(or delay 20ms) send
+            // to read
+            // localBleVersion
+            // mWriteCommand.sendToReadBLEVersion();
+        } else if (status == ICallbackStatus.GET_BLE_VERSION_OK) {// after read
+            // localBleVersion
+            // finish,
+            // then sync
+            // step
+            // mWriteCommand.syncAllStepData();
+        } else if (status == ICallbackStatus.DISCONNECT_STATUS) {
+            mHandler.sendEmptyMessage(DISCONNECT_MSG);
+        } else if (status == ICallbackStatus.CONNECTED_STATUS) {
+
+            mHandler.sendEmptyMessage(CONNECTED_MSG);
+            mHandler.postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    mWriteCommand.sendToQueryPasswardStatus();
+
+                }
+            }, 150);
+        } else if (status == ICallbackStatus.DISCOVERY_DEVICE_SHAKE) {
+            // Discovery device Shake
+        } else if (status == ICallbackStatus.OFFLINE_RATE_SYNC_OK) {
+            mHandler.sendEmptyMessage(RATE_SYNC_FINISH_MSG);
+        } else if (status == ICallbackStatus.SET_METRICE_OK) {// 设置公制单位成功
+
+        } else if (status == ICallbackStatus.SET_METRICE_OK) {// 设置英制单位成功
+
+        } else if (status == ICallbackStatus.SET_FIRST_ALARM_CLOCK_OK) {// 设置第1个闹钟OK
+
+        } else if (status == ICallbackStatus.SET_SECOND_ALARM_CLOCK_OK) {// 设置第2个闹钟OK
+
+        } else if (status == ICallbackStatus.SET_THIRD_ALARM_CLOCK_OK) {// 设置第3个闹钟OK
+
+        } else if (status == ICallbackStatus.SEND_PHONE_NAME_NUMBER_OK) {//
+            mWriteCommand.sendQQWeChatVibrationCommand(5);
+
+        } else if (status == ICallbackStatus.SEND_QQ_WHAT_SMS_CONTENT_OK) {//
+            mWriteCommand.sendQQWeChatVibrationCommand(1);
+
+        } else if (status == ICallbackStatus.PASSWORD_SET) {
+            Log.d(TAG, "没设置过密码，请设置4位数字密码");
+//            mHandler.sendEmptyMessage(SHOW_SET_PASSWORD_MSG);
+
+        } else if (status == ICallbackStatus.PASSWORD_INPUT) {
+            Log.d(TAG, "已设置过密码，请输入已设置的4位数字密码");
+//            mHandler.sendEmptyMessage(SHOW_INPUT_PASSWORD_MSG);
+
+        } else if (status == ICallbackStatus.PASSWORD_AUTHENTICATION_OK) {
+            Log.d(TAG, "验证成功或者设置密码成功");
+
+        } else if (status == ICallbackStatus.PASSWORD_INPUT_AGAIN) {
+            Log.d(TAG, "验证失败或者设置密码失败，请重新输入4位数字密码，如果已设置过密码，请输入已设置的密码");
+//            mHandler.sendEmptyMessage(SHOW_INPUT_PASSWORD_AGAIN_MSG);
+
+        } else if (status == ICallbackStatus.OFFLINE_SWIM_SYNCING) {
+            Log.d(TAG, "游泳数据同步中");
+        } else if (status == ICallbackStatus.OFFLINE_SWIM_SYNC_OK) {
+            Log.d(TAG, "游泳数据同步完成");
+            mHandler.sendEmptyMessage(OFFLINE_SWIM_SYNC_OK_MSG);
+        } else if (status == ICallbackStatus.OFFLINE_BLOOD_PRESSURE_SYNCING) {
+            Log.d(TAG, "血压数据同步中");
+        } else if (status == ICallbackStatus.OFFLINE_BLOOD_PRESSURE_SYNC_OK) {
+            Log.d(TAG, "血压数据同步完成");
+            mHandler.sendEmptyMessage(OFFLINE_BLOOD_PRESSURE_SYNC_OK_MSG);
+        }
+    }
+
+    private final String testKey1 = "00a4040008A000000333010101";
+
+    @Override
+    public void OnDataResult(boolean result, int status, byte[] data) {
+        StringBuilder stringBuilder = null;
+        if (data != null && data.length > 0) {
+            stringBuilder = new StringBuilder(data.length);
+            for (byte byteChar : data) {
+                stringBuilder.append(String.format("%02X", byteChar));
+            }
+            Log.i("testChannel", "BLE---->APK data =" + stringBuilder.toString());
+        }
+        if (status == ICallbackStatus.OPEN_CHANNEL_OK) {//打开通道OK
+            mHandler.sendEmptyMessage(OPEN_CHANNEL_OK_MSG);
+        } else if (status == ICallbackStatus.CLOSE_CHANNEL_OK) {//关闭通道OK
+            mHandler.sendEmptyMessage(CLOSE_CHANNEL_OK_MSG);
+        } else if (status == ICallbackStatus.BLE_DATA_BACK_OK) {//测试通道OK，通道正常
+            mHandler.sendEmptyMessage(TEST_CHANNEL_OK_MSG);
+        }
+    }
+
+    @Override
+    public void OnServiceStatuslt(int status) {
+        if (status == ICallbackStatus.BLE_SERVICE_START_OK) {
+            if (mBluetoothLeService == null) {
+                mBluetoothLeService = mBLEServiceOperate.getBleService();
+                mBluetoothLeService.setICallback(this);
+            }
+        }
     }
 
     private class GetImages extends AsyncTask<Void, Void, Void> {
@@ -471,4 +882,219 @@ public class HomeActivity extends AppCompatActivity {
     protected void attachBaseContext(Context context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        super.finish();
+//    }
+
+    private void upDateTodaySwimData() {
+        // TODO Auto-generated method stub
+        SwimInfo mSwimInfo = mySQLOperate.querySwimData(CalendarUtils.getCalendar(0));//传入日期，0为今天，-1为昨天，-2为前天。。。。
+        if (mSwimInfo != null) {
+            swim_time.setText(mSwimInfo.getSwimTime() + "");
+            swim_stroke_count.setText(mSwimInfo.getSwimStrokeCount() + "");
+            swim_calorie.setText(mSwimInfo.getCalories() + "");
+        }
+    }
+
+    ;
+
+    private StepChangeListener mOnStepChangeListener = new StepChangeListener() {
+
+        @Override
+        public void onStepChange(int steps, float distance, int calories) {
+            Log.d("onStepHandler", "steps =" + steps + ",distance =" + distance
+                    + ",calories =" + calories);
+            mSteps = steps;
+            mDistance = distance;
+            mCalories = calories;
+            mHandler.sendEmptyMessage(UPDATE_STEP_UI_MSG);
+        }
+    };
+
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case RATE_SYNC_FINISH_MSG:
+//                    UpdateUpdataRateMainUI(CalendarUtils.getCalendar(0));
+                    Toast.makeText(mContext, "Rate sync finish", 0).show();
+                    break;
+                case UPDATA_REAL_RATE_MSG:
+                    tv_rate.setText(tempRate + "");// 实时跳变
+                    if (tempStatus == GlobalVariable.RATE_TEST_FINISH) {
+//                        UpdateUpdataRateMainUI(CalendarUtils.getCalendar(0));
+                        Toast.makeText(mContext, "Rate test finish", 0).show();
+                    }
+                    break;
+                case GlobalVariable.GET_RSSI_MSG:
+                    Bundle bundle = msg.getData();
+//                    rssi_tv.setText(bundle.getInt(GlobalVariable.EXTRA_RSSI) + "");
+                    break;
+                case UPDATE_STEP_UI_MSG:
+//                    updateSteps(mSteps);
+//                    updateCalories(mCalories);
+//                    updateDistance(mDistance);
+                    pref.SavePreferences("Steps", String.valueOf(mSteps));
+                    pref.SavePreferences("Distance", String.valueOf(mDistance));
+                    pref.SavePreferences("Calories", String.valueOf(mCalories));
+
+//                    appData.putString("Steps", String.valueOf(mSteps));
+//                    appData.putString("Distance", String.valueOf(mDistance));
+//                    appData.putString("Calories", String.valueOf(mCalories));
+
+
+                    Log.d("onStepHandler", "mSteps =" + mSteps + ",mDistance ="
+                            + mDistance + ",mCalories =" + mCalories);
+                    break;
+                case UPDATE_SLEEP_UI_MSG:
+//                    querySleepInfo();
+                    Log.d("getSleepInfo", "UPDATE_SLEEP_UI_MSG");
+                    break;
+                case NEW_DAY_MSG:
+                    mySQLOperate.updateStepSQL();
+                    mySQLOperate.updateSleepSQL();
+                    mySQLOperate.updateRateSQL();
+                    mySQLOperate.isDeleteRefreshTable();
+//                    resetValues();
+                    break;
+                case GlobalVariable.START_PROGRESS_MSG:
+                    Log.i(TAG, "(Boolean) msg.obj=" + (Boolean) msg.obj);
+                    isUpdateSuccess = (Boolean) msg.obj;
+                    Log.i(TAG, "BisUpdateSuccess=" + isUpdateSuccess);
+//                    startProgressDialog();
+//                    mHandler.postDelayed(mDialogRunnable, TIME_OUT);
+                    break;
+                case GlobalVariable.DOWNLOAD_IMG_FAIL_MSG:
+//                    Toast.makeText(MainActivity.this, R.string.download_fail, 1).show();
+//                    if (mProgressDialog != null) {
+//                        mProgressDialog.dismiss();
+//                        mProgressDialog = null;
+//                    }
+//                    if (mDialogRunnable != null)
+//                        mHandler.removeCallbacks(mDialogRunnable);
+                    break;
+                case GlobalVariable.DISMISS_UPDATE_BLE_DIALOG_MSG:
+                    Log.i(TAG, "(Boolean) msg.obj=" + (Boolean) msg.obj);
+                    isUpdateSuccess = (Boolean) msg.obj;
+                    Log.i(TAG, "BisUpdateSuccess=" + isUpdateSuccess);
+//                    if (mProgressDialog != null) {
+//                        mProgressDialog.dismiss();
+//                        mProgressDialog = null;
+//                    }
+//                    if (mDialogRunnable != null) {
+//                        mHandler.removeCallbacks(mDialogRunnable);
+//                    }
+//
+//                    if (isUpdateSuccess) {
+//                        Toast.makeText(
+//                                mContext,
+//                                getResources().getString(
+//                                        R.string.ble_update_successful), 0).show();
+//                    }
+                    break;
+                case GlobalVariable.SERVER_IS_BUSY_MSG:
+//                    Toast.makeText(mContext,
+//                            getResources().getString(R.string.server_is_busy), 0)
+//                            .show();
+                    break;
+                case DISCONNECT_MSG:
+                    Toast.makeText(HomeActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+//                    connect_status.setText("Disconnected");
+                    CURRENT_STATUS = DISCONNECTED;
+                    Toast.makeText(mContext, "disconnect or connect falie", 0)
+                            .show();
+
+                    String lastConnectAddr0 = sp.getString(GlobalVariable.LAST_CONNECT_DEVICE_ADDRESS_SP, "00:00:00:00:00:00");
+                    boolean connectResute0 = mBLEServiceOperate.connect(lastConnectAddr0);
+                    Log.i(TAG, "connectResute0=" + connectResute0);
+
+                    break;
+                case CONNECTED_MSG:
+                    Toast.makeText(HomeActivity.this, "Connected", Toast.LENGTH_SHORT).show();
+//                    connect_status.setText("Connected");
+                    mBluetoothLeService.setRssiHandler(mHandler);
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (!Thread.interrupted()) {
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                if (mBluetoothLeService != null) {
+                                    mBluetoothLeService.readRssi();
+                                }
+                            }
+                        }
+                    }).start();
+                    CURRENT_STATUS = CONNECTED;
+                    Toast.makeText(mContext, "connected", 0).show();
+                    break;
+
+                case GlobalVariable.UPDATE_BLE_PROGRESS_MSG: // (新) 增加固件升级进度
+                    int schedule = msg.arg1;
+                    Log.i("zznkey", "schedule =" + schedule);
+//                    if (mProgressDialog == null) {
+//                        startProgressDialog();
+//                    }
+//                    mProgressDialog.setSchedule(schedule);
+                    break;
+                case OPEN_CHANNEL_OK_MSG://打开通道OK
+//                    test_channel.setText(getResources().getString(R.string.open_channel_ok));
+//                    resultBuilder.append(getResources().getString(R.string.open_channel_ok)+",");
+                    show_result.setText(resultBuilder.toString());
+
+//                    mWriteCommand.sendAPDUToBLE(WriteCommandToBLE.hexString2Bytes(testKey1));
+                    break;
+                case CLOSE_CHANNEL_OK_MSG://关闭通道OK
+//                    test_channel.setText(getResources().getString(R.string.close_channel_ok));
+//                    resultBuilder.append(getResources().getString(R.string.close_channel_ok)+",");
+//                    show_result.setText(resultBuilder.toString());
+                    break;
+                case TEST_CHANNEL_OK_MSG://通道测试OK
+//                    test_channel.setText(getResources().getString(R.string.test_channel_ok));
+//                    resultBuilder.append(getResources().getString(R.string.test_channel_ok)+",");
+                    show_result.setText(resultBuilder.toString());
+                    mWriteCommand.closeBLEchannel();
+                    break;
+
+//                case SHOW_SET_PASSWORD_MSG:
+//                    showPasswordDialog(GlobalVariable.PASSWORD_TYPE_SET);
+//                    break;
+//                case SHOW_INPUT_PASSWORD_MSG:
+//                    showPasswordDialog(GlobalVariable.PASSWORD_TYPE_INPUT);
+//                    break;
+//                case SHOW_INPUT_PASSWORD_AGAIN_MSG:
+//                    showPasswordDialog(GlobalVariable.PASSWORD_TYPE_INPUT_AGAIN);
+//                    break;
+//                case OFFLINE_SWIM_SYNC_OK_MSG:
+//                    upDateTodaySwimData();
+//                    Toast.makeText(MainActivity.this,
+//                            getResources().getString(R.string.sync_swim_finish), 0)
+//                            .show();
+//                    break;
+//
+//                case UPDATA_REAL_BLOOD_PRESSURE_MSG:
+//                    tv_low_pressure.setText(low_pressure+"");// 实时跳变
+//                    tv_high_pressure.setText(high_pressure+"");// 实时跳变
+//                    if (tempBloodPressureStatus == GlobalVariable.BLOOD_PRESSURE_TEST_FINISH) {
+//                        UpdateBloodPressureMainUI(CalendarUtils.getCalendar(0));
+//                        Toast.makeText(mContext, getResources().getString(R.string.test_pressure_ok), 0).show();
+//                    }
+//                    break;
+//                case OFFLINE_BLOOD_PRESSURE_SYNC_OK_MSG:
+//                    UpdateBloodPressureMainUI(CalendarUtils.getCalendar(0));
+//                    Toast.makeText(MainActivity.this,
+//                            getResources().getString(R.string.sync_pressure_ok), 0)
+//                            .show();
+//                    break;
+//                default:
+//                    break;
+            }
+        }
+    };
 }

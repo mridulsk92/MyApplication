@@ -4,52 +4,49 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.slider.library.Indicators.PagerIndicator;
 import com.daimajia.slider.library.SliderLayout;
 import com.daimajia.slider.library.SliderTypes.DefaultSliderView;
-import com.daimajia.slider.library.SliderTypes.TextSliderView;
-import com.mikepenz.materialize.color.Material;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -79,6 +76,7 @@ public class ProductActivity extends AppCompatActivity {
     String banner1_st, banner2_st;
     PreferencesHelper pref;
     String isLogged;
+    TextView badge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +114,11 @@ public class ProductActivity extends AppCompatActivity {
 
         //Check If Logged In
         isLogged = pref.GetPreferences("Login");
+
+        //Get Intent
+        Intent i = getIntent();
+        product_id = i.getStringExtra("Product Id");
+        pref.SavePreferences("ProductId", product_id);
 
         gold.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,10 +177,36 @@ public class ProductActivity extends AppCompatActivity {
             }
         });
 
-        //Get Intent
-        Intent i = getIntent();
-        product_id = i.getStringExtra("Product Id");
-        pref.SavePreferences("ProductId", product_id);
+        //Count Badge and Cart Button
+        badge = (TextView) toolbar_nologo.findViewById(R.id.textOne);
+        ImageView cart = (ImageView) toolbar_nologo.findViewById(R.id.cart_view);
+        String count = pref.GetPreferences("Cart Count");
+        if (isLogged.equals("true")) {
+            if (count.equals("0")) {
+                badge.setVisibility(View.GONE);
+            } else {
+                badge.setText(count);
+            }
+            //onClick of Cart View
+            cart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(ProductActivity.this, CartActivity.class);
+                    i.putExtra("Id", product_id);
+                    startActivity(i);
+                }
+            });
+            badge.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(ProductActivity.this, CartActivity.class);
+                    i.putExtra("Id", product_id);
+                    startActivity(i);
+                }
+            });
+        } else {
+            badge.setVisibility(View.GONE);
+        }
 
         //Load Product Data
         new LoadProduct().execute(url + product_id);
@@ -189,7 +218,8 @@ public class ProductActivity extends AppCompatActivity {
 
 
                 if (isLogged.equals("true")) {
-                    Toast.makeText(ProductActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
+                    new AddToCart().execute();
+//                    Toast.makeText(ProductActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
                 } else {
 
                     final Dialog dialog = new Dialog(ProductActivity.this);
@@ -286,6 +316,104 @@ public class ProductActivity extends AppCompatActivity {
         });
     }
 
+    private class AddToCart extends AsyncTask<Object, Object, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            // Showing progress dialog
+            pDialog = new ProgressDialog(ProductActivity.this);
+            pDialog.setMessage("Please Wait");
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Object... params) {
+
+            try {
+
+                URL url = new URL("http://shop.irinerose.com/api/user/cart/add");
+
+                JSONObject postDataParams = new JSONObject();
+                postDataParams.put("id", product_id);
+                Log.e("params", postDataParams.toString());
+
+                String token = pref.GetPreferences("Token");
+
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(15000 /* milliseconds */);
+                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("token", token);
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(getPostDataString(postDataParams));
+
+                writer.flush();
+                writer.close();
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+
+                if (responseCode == HttpsURLConnection.HTTP_OK) {
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+                    StringBuffer sb = new StringBuffer("");
+                    String line = "";
+
+                    while ((line = in.readLine()) != null) {
+
+                        sb.append(line);
+                        break;
+                    }
+
+                    in.close();
+                    return sb.toString();
+
+                } else {
+                    return new String("false : " + responseCode);
+                }
+            } catch (Exception e) {
+                return new String("Exception: " + e.getMessage());
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String aVoid) {
+            super.onPostExecute(aVoid);
+
+            if (pDialog.isShowing()) {
+                pDialog.dismiss();
+
+                Log.d("Test Login", aVoid);
+
+                if (aVoid != null) {
+                    try {
+
+                        JSONObject obj = new JSONObject(aVoid);
+                        String success = obj.getString("success");
+
+                        JSONObject dataObj = obj.getJSONObject("data");
+                        String count = dataObj.getString("count");
+                        if (success.equals("true")) {
+                            pref.SavePreferences("Cart Count", count);
+                            badge.setText(count);
+                            badge.setVisibility(View.VISIBLE);
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
     private class LoadProduct extends AsyncTask<String, Void, Void> {
 
         @Override
@@ -305,7 +433,7 @@ public class ProductActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token);
             Log.d("Json", String.valueOf(json));
             try {
 
@@ -522,14 +650,47 @@ public class ProductActivity extends AppCompatActivity {
         }
     }
 
+    public String getPostDataString(JSONObject params) throws Exception {
+
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+
+        Iterator<String> itr = params.keys();
+
+        while (itr.hasNext()) {
+
+            String key = itr.next();
+            Object value = params.get(key);
+
+            if (first)
+                first = false;
+            else
+                result.append("&");
+
+            result.append(URLEncoder.encode(key, "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(value.toString(), "UTF-8"));
+
+        }
+        return result.toString();
+    }
+
     @Override
     protected void attachBaseContext(Context context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(context));
     }
 
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        super.finish();
+//    }
+
     @Override
-    protected void onPause() {
-        super.onPause();
-        super.finish();
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent i = new Intent(ProductActivity.this, NewArrivalActivity.class);
+        i.putExtra("Source", "New Arrival");
+        startActivity(i);
     }
 }

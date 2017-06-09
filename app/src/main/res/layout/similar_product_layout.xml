@@ -5,9 +5,9 @@
 
     <RelativeLayout
         android:id="@+id/card_view"
-        android:layout_width="150dp"
+        android:layout_width="180dp"
         android:background="@color/md_white_1000"
-        android:layout_height="220dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="@dimen/card_margin">
 
@@ -17,7 +17,7 @@
 
             <ImageView
                 android:id="@+id/thumbnail"
-                android:layout_width="150dp"
+                android:layout_width="180dp"
                 android:layout_height="150dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="fitXY" />
@@ -35,8 +35,8 @@
             <TextView
                 android:id="@+id/textView_price"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:layout_below="@id/textView_name"
+                android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/songs_count_padding_bottom"
                 android:paddingLeft="@dimen/album_title_padding"
                 android:paddingRight="@dimen/album_title_padding"
@@ -55,7 +55,5 @@
                 android:visibility="gone" />
 
         </RelativeLayout>
-
     </RelativeLayout>
-
 </LinearLayout>

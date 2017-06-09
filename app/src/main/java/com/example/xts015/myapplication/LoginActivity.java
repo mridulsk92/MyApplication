@@ -22,6 +22,7 @@ import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -269,6 +270,10 @@ public class LoginActivity extends AppCompatActivity {
 //                        pref.SavePreferences("UserId", id);
                         pref.SavePreferences("UserEmail", email);
 //                        pref.SavePreferences("UserCurrency", currency);
+
+                        JSONObject cartObj = obj.getJSONObject("cart");
+                        int count = cartObj.getInt("count");
+                        pref.SavePreferences("Cart Count", String.valueOf(count));
                     }
 
                 } catch (JSONException e) {

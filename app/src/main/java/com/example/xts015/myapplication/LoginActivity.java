@@ -265,9 +265,10 @@ public class LoginActivity extends AppCompatActivity {
 //                        String id = userObj.getString("id");
                         String name = userObj.getString("name");
                         String email = userObj.getString("email");
+                        String phone = userObj.getString("phone");
 //                        String currency = userObj.getString("currency");
                         pref.SavePreferences("UserName", name);
-//                        pref.SavePreferences("UserId", id);
+                        pref.SavePreferences("Phone", phone);
                         pref.SavePreferences("UserEmail", email);
 //                        pref.SavePreferences("UserCurrency", currency);
 

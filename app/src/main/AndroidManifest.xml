@@ -30,7 +30,6 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:required="false" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -56,11 +55,9 @@
         <meta-data
             android:name="YCAPPKEY"
             android:value="f0b520cdb42c7103f6683977793ae81c" />
-
         <meta-data
             android:name="com.razorpay.ApiKey"
-            android:value="rzp_test_ChDye6K0EQoWOn"
-            />
+            android:value="rzp_test_ChDye6K0EQoWOn" />
 
         <activity
             android:name=".HomeActivity"
@@ -88,7 +85,14 @@
         <service
             android:name=".BluetoothService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".AddressActivity" />
+        <activity android:name=".MerchantActivity" />
+        <activity android:name=".OrderActivity" />
+        <activity android:name=".AccountActivity" />
+        <activity android:name=".TrackOrderActivity" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

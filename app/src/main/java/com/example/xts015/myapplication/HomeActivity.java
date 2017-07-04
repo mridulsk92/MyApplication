@@ -112,7 +112,7 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
     PreferencesHelper pref;
     String isLogged;
     ProgressDialog pDialog;
-    String success_logout, bannerApps;
+    String success_logout, bannerApps, locale;
 
     /////////////////////////////////////////
     private TextView connect_status, rssi_tv, tv_steps, tv_distance,
@@ -212,6 +212,7 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
         appLabel = (TextView) findViewById(R.id.label_apps);
         homeShopLabel = (TextView) findViewById(R.id.label_shops_home);
         connectLabel = (TextView) findViewById(R.id.connect_view);
+        locale = pref.GetPreferences("Location");
 
         Intent i = new Intent(HomeActivity.this, BluetoothLeService.class);
         startService(i);
@@ -280,6 +281,7 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
                 public void onClick(View v) {
                     Intent i = new Intent(HomeActivity.this, CartActivity.class);
                     i.putExtra("Id", "Home");
+                    i.putExtra("Type","Cart");
                     startActivity(i);
                 }
             });
@@ -288,6 +290,7 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
                 public void onClick(View v) {
                     Intent i = new Intent(HomeActivity.this, CartActivity.class);
                     i.putExtra("Id", "Home");
+                    i.putExtra("Type","Cart");
                     startActivity(i);
                 }
             });
@@ -608,7 +611,7 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
 
 
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url, token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url, token, locale);
             try {
 
                 if (json != null) {
@@ -741,15 +744,38 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
                         Intent collectionIntent = new Intent(HomeActivity.this, CollectionActivity.class);
                         startActivity(collectionIntent);
                         break;
-                    case R.id.account:
-
+                    case R.id.orders:
+                        Intent orderIntent = new Intent(HomeActivity.this, OrderActivity.class);
+                        startActivity(orderIntent);
+                        break;
+                    case R.id.saved_items:
                         if (isLogged.equals("true")) {
-                            Toast.makeText(HomeActivity.this, "Logged In", Toast.LENGTH_SHORT).show();
+//                            Intent i = new Intent(HomeActivity.this, CartActivity.class);
+//                            i.putExtra("Type","Wishlist");
+//                            i.putExtra("Id", "Home");
+//                            startActivity(i);
                         } else {
                             Intent accountIntent = new Intent(HomeActivity.this, LoginActivity.class);
                             accountIntent.putExtra("From", "HomeActivity");
                             startActivity(accountIntent);
                         }
+                        break;
+                    case R.id.account:
+
+                        if (isLogged.equals("true")) {
+                            Intent accountIntent = new Intent(HomeActivity.this, AccountActivity.class);
+                            startActivity(accountIntent);
+                        } else {
+                            Intent accountIntent = new Intent(HomeActivity.this, LoginActivity.class);
+                            accountIntent.putExtra("From", "HomeActivity");
+                            startActivity(accountIntent);
+                        }
+                        break;
+                    case R.id.settings:
+
+                        Intent settingsIntent = new Intent(HomeActivity.this, SettingsActivity.class);
+                        startActivity(settingsIntent);
+                        break;
                 }
                 return true;
             }
@@ -836,7 +862,7 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
 
             String token = pref.GetPreferences("Token");
             String url_logout = "http://shop.irinerose.com/api/user/logout";
-            JSONObject json = jParser.getJSONFromUrlByGet(url_logout, token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_logout, token,locale);
             Log.d("TEST", json.toString());
             if (json != null) {
                 try {
@@ -898,8 +924,6 @@ public class HomeActivity extends AppCompatActivity implements ServiceStatusCall
             swim_calorie.setText(mSwimInfo.getCalories() + "");
         }
     }
-
-    ;
 
     private StepChangeListener mOnStepChangeListener = new StepChangeListener() {
 

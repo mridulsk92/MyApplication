@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/homme_address_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/no_home_address_view"
+        android:layout_weight="2.43"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <EditText
+                android:id="@+id/firstname_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="5"
+                android:background="@drawable/edittext_modified"
+                android:padding="10dp"
+                android:hint="First Name" />
+
+            <EditText
+                android:id="@+id/secondName_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="5"
+                android:background="@drawable/edittext_modified"
+                android:padding="10dp"
+                android:hint="Lat Name" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/address1_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/edittext_modified"
+            android:padding="10dp"
+            android:hint="Address line 1" />
+
+        <EditText
+            android:id="@+id/address2_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/edittext_modified"
+            android:padding="10dp"
+            android:hint="Address line 2" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <EditText
+                android:id="@+id/city_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="5"
+                android:background="@drawable/edittext_modified"
+                android:padding="10dp"
+                android:hint="City" />
+
+            <EditText
+                android:id="@+id/pincode_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="5"
+                android:background="@drawable/edittext_modified"
+                android:inputType="number"
+                android:padding="10dp"
+                android:hint="Pin Code" />
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/state_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/edittext_modified"
+            android:padding="10dp"
+            android:hint="State" />
+
+        <EditText
+            android:id="@+id/country_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/edittext_modified"
+            android:padding="10dp"
+            android:hint="Country" />
+
+        <EditText
+            android:id="@+id/phone_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@drawable/edittext_modified"
+            android:inputType="number"
+            android:padding="10dp"
+            android:hint="Phone" />
+
+        <Button
+            android:id="@+id/submit_address_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submit" />
+
+    </LinearLayout>
+</LinearLayout>

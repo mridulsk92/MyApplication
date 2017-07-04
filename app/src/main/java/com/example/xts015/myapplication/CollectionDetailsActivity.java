@@ -41,6 +41,7 @@ public class CollectionDetailsActivity extends AppCompatActivity {
     LayoutInflater inflater;
     String banner_st, name_st, description_st;
     PreferencesHelper pref;
+    String locale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,7 @@ public class CollectionDetailsActivity extends AppCompatActivity {
         //Initialise
         collectionProducts = (ListView) findViewById(R.id.collections_products);
         pref = new PreferencesHelper(CollectionDetailsActivity.this);
+        locale = pref.GetPreferences("Location");
 
         String url = "http://shop.irinerose.com/api/collections/" + id;
         new GetCollectionProducts().execute(url);
@@ -96,7 +98,7 @@ public class CollectionDetailsActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final,token, locale);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {

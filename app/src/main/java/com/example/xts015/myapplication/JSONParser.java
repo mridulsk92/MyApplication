@@ -18,6 +18,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.content.Context;
 import android.util.Log;
 
 public class JSONParser {
@@ -77,7 +78,7 @@ public class JSONParser {
 
     }
 
-    public JSONObject getJSONFromUrlByGet(String url, String token) {
+    public JSONObject getJSONFromUrlByGet(String url, String token, String locale) {
 
         // Making HTTP request
         try {
@@ -85,6 +86,7 @@ public class JSONParser {
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpGet httpGet = new HttpGet(url);
             httpGet.addHeader("token",token);
+            httpGet.addHeader("locale",locale);
 
             HttpResponse httpResponse = httpClient.execute(httpGet);
             HttpEntity httpEntity = httpResponse.getEntity();

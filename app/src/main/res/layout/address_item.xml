@@ -1,0 +1,101 @@
+<LinearLayout android:id="@+id/homme_address_layout"
+    android:layout_width="match_parent"
+    android:layout_below="@+id/no_home_address_view"
+    android:layout_marginTop="15dp"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <RadioButton
+        android:id="@+id/selected_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set As Default"/>
+
+    <TextView
+        android:id="@+id/address_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:visibility="gone"
+        android:text="Id"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/firstname_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="First Name"/>
+
+        <TextView
+            android:id="@+id/secondName_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+
+            android:text="Lat Name"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/address1_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Address line 1"/>
+
+    <TextView
+        android:id="@+id/address2_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Address line 2"/>
+
+    <TextView
+        android:id="@+id/state_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="State"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/city_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="City"/>
+
+        <TextView
+            android:id="@+id/pincode_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Pin Code"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/country_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Country"/>
+
+    <TextView
+        android:id="@+id/phone_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Phone"/>
+
+</LinearLayout>

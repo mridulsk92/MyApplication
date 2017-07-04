@@ -77,7 +77,7 @@ public class NewArrivalActivity extends AppCompatActivity {
 
     ArrayList<HashMap<String, Object>> dataListStrikes = new ArrayList<>();
     ArrayList<HashMap<String, Object>> moreDataListStrikes = new ArrayList<>();
-    String strike;
+    String strike, locale;
     PreferencesHelper pref;
 
     @Override
@@ -98,6 +98,7 @@ public class NewArrivalActivity extends AppCompatActivity {
         progressLayout = (RelativeLayout) findViewById(R.id.progress_layout);
         empty = (TextView) findViewById(R.id.empty);
         button_layout = (LinearLayout) findViewById(R.id.buttons);
+        locale = pref.GetPreferences("Location");
 
         //Get Intent
         Intent i = getIntent();
@@ -325,7 +326,7 @@ public class NewArrivalActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token, locale);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {
@@ -427,7 +428,7 @@ public class NewArrivalActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token, locale);
             Log.d("Json", String.valueOf(json));
             if (json != null) {
                 try {

@@ -56,7 +56,7 @@ public class CartActivity extends AppCompatActivity {
     LayoutInflater inflater;
     Typeface font, font_bold;
     String total_count, total_amt;
-    String id;
+    String id, locale;
     int qty_final;
 
     @Override
@@ -105,6 +105,7 @@ public class CartActivity extends AppCompatActivity {
         totalText = (TextView) findViewById(R.id.total_view);
         checkOutBtn = (Button) findViewById(R.id.btn_checkout);
         pref = new PreferencesHelper(CartActivity.this);
+        locale = pref.GetPreferences("Location");
 
         //Access Cart
         new AccessCart().execute();
@@ -138,7 +139,7 @@ public class CartActivity extends AppCompatActivity {
         protected Void doInBackground(Void... params) {
 
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url, token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url, token, locale);
             Log.d("Json", String.valueOf(json));
 
             try {
@@ -224,6 +225,7 @@ public class CartActivity extends AppCompatActivity {
                 conn.setConnectTimeout(15000 /* milliseconds */);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("token", token);
+                conn.setRequestProperty("locale", locale);
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
                 OutputStream os = conn.getOutputStream();
@@ -277,7 +279,7 @@ public class CartActivity extends AppCompatActivity {
 
                     JSONObject dataObj = obj.getJSONObject("data");
                     String count = dataObj.getString("count");
-                    if(success.equals("true")){
+                    if (success.equals("true")) {
                         pref.SavePreferences("Cart Count", count);
                         new AccessCart().execute();
                     }
@@ -321,6 +323,7 @@ public class CartActivity extends AppCompatActivity {
                 conn.setConnectTimeout(15000 /* milliseconds */);
                 conn.setRequestMethod("DELETE");
                 conn.setRequestProperty("token", token);
+                conn.setRequestProperty("locale", locale);
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
                 OutputStream os = conn.getOutputStream();
@@ -374,7 +377,7 @@ public class CartActivity extends AppCompatActivity {
 
                     JSONObject dataObj = obj.getJSONObject("data");
                     String count = dataObj.getString("count");
-                    if(success.equals("true")){
+                    if (success.equals("true")) {
                         pref.SavePreferences("Cart Count", count);
                         new AccessCart().execute();
                     }
@@ -418,6 +421,7 @@ public class CartActivity extends AppCompatActivity {
                 conn.setConnectTimeout(15000 /* milliseconds */);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("token", token);
+                conn.setRequestProperty("locale", locale);
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
                 OutputStream os = conn.getOutputStream();
@@ -471,7 +475,7 @@ public class CartActivity extends AppCompatActivity {
 
 //                    JSONObject dataObj = obj.getJSONObject("data");
 //                    String count = dataObj.getString("count");
-                    if(success.equals("true")){
+                    if (success.equals("true")) {
 //                        pref.SavePreferences("Cart Count", count);
                         new AccessCart().execute();
                     }

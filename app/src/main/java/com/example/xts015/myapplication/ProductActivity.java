@@ -75,7 +75,7 @@ public class ProductActivity extends AppCompatActivity {
     ImageView banner1, banner2;
     String banner1_st, banner2_st;
     PreferencesHelper pref;
-    String isLogged;
+    String isLogged, locale;
     TextView badge;
 
     @Override
@@ -97,6 +97,7 @@ public class ProductActivity extends AppCompatActivity {
         dimensions = (TextView) findViewById(R.id.dimensions_view);
         banner1 = (ImageView) findViewById(R.id.banner1);
         banner2 = (ImageView) findViewById(R.id.banner2);
+        locale = pref.GetPreferences("Location");
 
         mSlider = (SliderLayout) findViewById(R.id.slider);
         mSlider.stopAutoCycle();
@@ -347,6 +348,7 @@ public class ProductActivity extends AppCompatActivity {
                 conn.setConnectTimeout(15000 /* milliseconds */);
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("token", token);
+                conn.setRequestProperty("locale", locale);
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
                 OutputStream os = conn.getOutputStream();
@@ -433,7 +435,7 @@ public class ProductActivity extends AppCompatActivity {
             String url_final = params[0];
             Log.d("Url Final", url_final);
             String token = pref.GetPreferences("Token");
-            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token);
+            JSONObject json = jParser.getJSONFromUrlByGet(url_final, token, locale);
             Log.d("Json", String.valueOf(json));
             try {
 

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@color/white"
     android:layout_height="match_parent"
-    tools:context="com.example.xts015.myapplication.NewArrivalActivity">
+    tools:context="com.irinerose.app.myapplication.NewArrivalActivity">
 
     <include
         android:id="@+id/include"

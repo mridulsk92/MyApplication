@@ -1,4 +1,4 @@
-package com.example.xts015.myapplication;
+package com.irinerose.app.myapplication;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

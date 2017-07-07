@@ -5,7 +5,7 @@
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.xts015.myapplication.CollectionActivity">
+    tools:context="com.irinerose.app.myapplication.CollectionActivity">
 
     <include
         android:id="@+id/include3"

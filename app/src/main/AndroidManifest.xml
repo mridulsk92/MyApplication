@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.xts015.myapplication">
+    package="com.irinerose.app">
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
@@ -40,7 +40,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".CalligraphyApplication"
+        android:name="com.irinerose.app.myapplication.CalligraphyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -59,8 +59,13 @@
             android:name="com.razorpay.ApiKey"
             android:value="rzp_test_ChDye6K0EQoWOn" />
 
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+
         <activity
-            android:name=".HomeActivity"
+            android:name="com.irinerose.app.myapplication.HomeActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -68,31 +73,32 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NewArrivalActivity" />
-        <activity android:name=".ProductActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".CollectionActivity" />
-        <activity android:name=".CollectionDetailsActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".WelcomeActivity" />
-        <activity android:name=".CartActivity" />
-        <activity android:name=".CheckoutActivity" />
-        <activity android:name=".DeviceScanActivity" />
+        <activity android:name="com.irinerose.app.myapplication.NewArrivalActivity" />
+        <activity android:name="com.irinerose.app.myapplication.ProductActivity" />
+        <activity android:name="com.irinerose.app.myapplication.LoginActivity" />
+        <activity android:name="com.irinerose.app.myapplication.CollectionActivity" />
+        <activity android:name="com.irinerose.app.myapplication.CollectionDetailsActivity" />
+        <activity android:name="com.irinerose.app.myapplication.RegisterActivity" />
+        <activity android:name="com.irinerose.app.myapplication.WelcomeActivity" />
+        <activity android:name="com.irinerose.app.myapplication.CartActivity" />
+        <activity android:name="com.irinerose.app.myapplication.CheckoutActivity" />
+        <activity android:name="com.irinerose.app.myapplication.DeviceScanActivity" />
 
         <service
             android:name="com.yc.peddemo.sdk.BluetoothLeService"
             android:enabled="true" />
         <service
-            android:name=".BluetoothService"
+            android:name="com.irinerose.app.myapplication.BluetoothService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".AddressActivity" />
-        <activity android:name=".MerchantActivity" />
-        <activity android:name=".OrderActivity" />
-        <activity android:name=".AccountActivity" />
-        <activity android:name=".TrackOrderActivity" />
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name="com.irinerose.app.myapplication.AddressActivity" />
+        <activity android:name="com.irinerose.app.myapplication.MerchantActivity" />
+        <activity android:name="com.irinerose.app.myapplication.OrderActivity" />
+        <activity android:name="com.irinerose.app.myapplication.AccountActivity" />
+        <activity android:name="com.irinerose.app.myapplication.TrackOrderActivity" />
+        <activity android:name="com.irinerose.app.myapplication.SettingsActivity" />
+        <activity android:name="com.irinerose.app.myapplication.GiftCardActivity"></activity>
     </application>
 
 </manifest>

@@ -4,7 +4,7 @@
     android:id="@+id/activity_address"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.xts015.myapplication.AddressActivity">
+    tools:context="com.irinerose.app.myapplication.AddressActivity">
 
     <include layout="@layout/toolbar_nologo"
         android:id="@+id/include7" />

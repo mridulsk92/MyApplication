@@ -8,7 +8,7 @@
     android:background="@color/md_white_1000"
     android:orientation="vertical"
     android:weightSum="10"
-    tools:context="com.example.xts015.myapplication.LoginActivity">
+    tools:context="com.irinerose.app.myapplication.LoginActivity">
 
     <include layout="@layout/toolbar_simple" />
 

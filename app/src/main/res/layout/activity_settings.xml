@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:background="@color/white"
     android:layout_height="match_parent"
-    tools:context="com.example.xts015.myapplication.SettingsActivity">
+    tools:context="com.irinerose.app.myapplication.SettingsActivity">
 
     <include layout="@layout/toolbar_nologo"
         android:id="@+id/include9" />

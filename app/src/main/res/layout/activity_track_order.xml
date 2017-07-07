@@ -5,7 +5,7 @@
     android:id="@+id/activity_track_order"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.xts015.myapplication.TrackOrderActivity">
+    tools:context="com.irinerose.app.myapplication.TrackOrderActivity">
 
     <include layout="@layout/toolbar_nologo"
         android:id="@+id/include8" />
